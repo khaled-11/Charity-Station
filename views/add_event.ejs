@@ -1,0 +1,45 @@
+<%- include("header") -%>
+<center>
+<br>
+<br>
+<h2 style="text-align:center">Please add the event information below:</h2>
+</center>
+
+<div class="register-form">
+    <form action="add_event" method="POST" style="display:full">
+        <br>    
+        Event Name:
+        <br>    
+        <input type="text" required = "true" name="name" style="display:full">
+        <br>
+        <br>
+        Event Category:
+        <br>
+        <input type="text" required = "true" name="category" style="display:full">
+        <br>
+        <br>
+        Event Location:
+        <br>
+        <input type="text" required = "true" name="location" style="display:full">
+        <br>
+        <br>
+        Event Dates:
+        <br>
+        <input type="text" required = "true" name="dates" style="display:full">
+        <br>
+        <br>
+        Event Info:
+        <br>
+        <input type="text" required = "true" name="info" style="display:full">
+        <br>
+        <br>
+        Event Image:
+        <br>
+        <input type="text" required = "true" name="image" style="display:full">
+        <br>
+        <br>
+        <input type="submit" value="Add Event">
+    </form>
+</div>
+
+<%- include("footer") -%>

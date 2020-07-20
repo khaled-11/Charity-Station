@@ -1,0 +1,30 @@
+<%- include("header") -%>
+<br>
+<br>
+<h2 style="text-align:center">You can search Charities in the USA by using this search tool.</h2>
+
+<center>
+<br>
+<p>You can start a Fundraising on our Website for any Charity Orgnization you want to support!</p>
+    <div id="search" ></div>
+    <form action="" method="POST" style="display:full">
+        Charity Name or Keyword:
+        <br>
+            <input id = "form_name" type="text" required = "true" minlength="3" name = "name" style="display:full">
+            <br>
+            <br>
+            The City:
+            <br>
+            <input id = "form_city" type="text" required = "true" minlength="3" name = "city" style="display:full">
+            <br>
+            <br>
+            The State:
+            <br>
+            <input id = "form_state" type="text" required = "true"  minlength="2" maxlength="2" name = "state" style="display:full">
+            <br>
+            <br>
+            <input type="submit" value="search">
+        </form>
+    </div>
+</center>
+<%- include("footer") -%>

@@ -1,0 +1,19 @@
+<%- include("header") -%>
+<title>Charity Station Login</title>
+<center>
+<br>
+<h1> You are not logged in.</h1>
+<br>
+<div class="register-form">
+    <h1>Charity Station Login</h1>
+    <form action="auth" method="POST">
+        <input type="text" name="username" required = "true" placeholder="Username" required>
+        <input type="password" name="password" required = "true" minlength="6" placeholder="Password" required>
+        <input type="submit" value="Login">
+        <h1><a href=<%=process.env.URL%>a_login>Amazon Login</a></h1>
+        <p></p><a href=<%=process.env.URL%>s_login>Sandbox Login</a><br>
+        SandBox Credentials: Email:"test@dummy.fun", Password:"123456"</p>
+    </form>
+</div>
+</center>
+<%- include("footer") -%>

@@ -1,0 +1,42 @@
+<%- include("header") -%>
+<center>
+<br>
+<br>
+<h2 style="text-align:center">Here is our popular Events. Please share it with your Friends!!</h2>
+<br>
+<div class="event">   
+<input type="button" onclick="window.location.href='<%=process.env.URL%>add_event';"  value="Add Event" id="button" style="display:<%=dis%>"></button>
+</div>
+</center>
+<br>
+<div class="table-sm">
+<table class="table table-hover" id="tbl">
+<thead>
+  <tr>
+    <th>Event Name:</th>
+    <th>Event Category:</th>
+    <th>Event Location:</th>
+    <th>Event Dates:</th>
+    <th>Event Info:</th>
+  </tr>
+</thead>
+<tbody>
+
+<% for (const eve of data) { %>
+      <tr>
+        <td><%= eve.event_name.S %></td>
+        <td><%= eve.event_category.S %></td>
+        <td><%= eve.event_location.S %></td>
+        <td><%= eve.event_dates.S %></td>
+        <td><%= eve.event_info.S %></td>
+  
+        <td class="d-print-none" align="center">
+          <a class="btn btn-sm btn-info" href="/event?page=<%= eve.event_name.S %>">Event Page</a>
+        </td>
+
+        </tr>
+    <% } %>
+</tbody>
+</table>
+</div>
+<%- include("footer") -%>

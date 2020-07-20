@@ -1,0 +1,41 @@
+<%- include("header") -%>
+<br>
+<br>
+<h2 style="text-align:center">Here is the what was found.</h2>
+<br>
+<div class="table-sm">
+    <table class="table table-hover" id="tbl">
+  <thead>
+    <tr>
+      <th>Charity Name</th>
+      <th>EIN</th>
+      <th>URL</th>
+      <th>Donations URL</th>
+      <th>Address</th>
+
+      <th>Category</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% for (const data of model) { %>
+      <tr>
+        <td><%= data.charityName %></td>
+        <td><%= data.ein %></td>
+        <td><%= data.url %></td>
+        <td><%= data.donationUrl %></td>
+        <td><%= data.city %>, <%= data.state %> <%= data.zipCode %></td> 
+        <td><%= data.category %></td>
+  
+        <td class="d-print-none" align="center">
+          <a class="btn btn-sm btn-success" href="/fund?name=<%= data.charityName %>">Fundraising</a>
+<br><br>
+
+          <a class="btn btn-sm btn-info" href="/map?longitude=<%= data.longitude %>&latitude=<%= data.latitude %>">Show Map</a>
+        </td>
+
+        </tr>
+    <% } %>
+  </tbody>
+  </table>
+  </div>
+  <%- include("footer") -%>

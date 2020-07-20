@@ -1,0 +1,37 @@
+<%- include("header") -%>
+<center>
+    <br>
+    <br>
+<h2>You can find & download your receipt below:</h2>
+</center>
+<br>
+<br>
+<div class="table-sm">
+    <table class="table table-hover" id="tbl">
+  <thead>
+    <tr>
+      <th>User Name:</th>
+      <th>Donation for:</th>
+      <th>Donation Time</th>
+      <th>Receipt Number</th>
+      <th>Donation Amount</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% for (t  = 1 ; t < donat.length ; ++t) { %>
+      <tr>
+        <td><%= name %></td>
+        <td><%= donat[t].S %></td>
+        <td><%= donat2[t].S %></td> 
+        <td><%= donat3[t].S %></td>
+        <td>$<%= donat4[t].S %></td> 
+        <td class="d-print-none" align="center">
+
+          <a class="btn btn-sm btn-info" href="/download?no=<%=donat3[t].S%>">Download</a>
+        </td>
+        </tr>
+    <% } %>
+  </tbody>
+  </table>
+  </div>
+<%- include("footer") -%>

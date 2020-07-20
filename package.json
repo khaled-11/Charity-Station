@@ -1,0 +1,44 @@
+{
+  "name": "charity-station",
+  "version": "1.0.0",
+  "description": "Charity Platform using Amazon Pay & DynamoDB connected with Messenger Chatbot",
+  "main": "index.js",
+  "scripts": {
+    "test": "test",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/khaled-11/Charity-Station.git"
+  },
+  "keywords": [
+    "AWS",
+    "DynamoDB",
+    "Express",
+    "Amazon",
+    "Pay",
+    "A-Pay",
+    "Facebook",
+    "Messenger"
+  ],
+  "author": "Khaled Abouseada",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/khaled-11/Charity-Station/issues"
+  },
+  "homepage": "https://github.com/khaled-11/Charity-Station#readme",
+  "dependencies": {
+    "aws-sdk": "^2.715.0",
+    "body-parser": "^1.19.0",
+    "dotenv": "^8.2.0",
+    "ejs": "^3.1.3",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "md5": "^2.2.1",
+    "node-geocoder": "^3.27.0",
+    "nodemailer": "^6.4.10",
+    "path": "^0.12.7",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.5"
+  }
+}

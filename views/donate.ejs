@@ -1,0 +1,331 @@
+<%- include("header") -%>
+<center>
+<br> <h1>Thanks you for helping us!</h1>
+<br> <h2>Please choose how much do you want to donate below:</h2>
+
+<!--Temporary Custom Donation Buttons Widget-->
+<div class="donate">
+    <input class="showHideDiv" type="button" value="$5" id="b_donate_5" style="display:full ; background-color: #006400""></button>
+    <input class="showHideDiv" type="button" value="$10" id="b_donate_10" style="display:full"></button>
+    <input class="showHideDiv" type="button" value="$20" id="b_donate_20" style="display:full"></button>
+    <input class="showHideDiv" type="button" value="$50" id="b_donate_50" style="display:full"></button>
+    <input class="showHideDiv" type="button" value="$100" id="b_donate_100" style="display:full"></button>
+    <input class="showHideDiv" type="button" value="$250" id="b_donate_250" style="display:full"></button>
+    <input class="showHideDiv" type="button" value="$500" id="b_donate_500" style="display:full"></button>
+    <input class="showHideDiv" type="button" value="$1000" id="b_donate_1000" style="display:full"></button>
+</div> <br>
+
+<!--Amazon Pay Script and Buttons for each amount-->
+<script async src="https://static-na.payments-amazon.com/OffAmazonPayments/us/js/Widgets.js"></script>
+  
+<div id="donate_5" style="display:full;"
+    data-ap-widget-type="expressPaymentButton"
+    data-ap-signature="<%=process.env.SIGNATURE_5%>"
+    data-ap-seller-id="<%=process.env.SELLER_ID%>"
+    data-ap-access-key="<%=process.env.SELLER_ACCESS_KEY%>"
+    data-ap-lwa-client-id="<%=process.env.CLIENT_ID%>"
+    data-ap-return-url="<%=process.env.URL%>success/"
+    data-ap-cancel-return-url="<%=process.env.URL%>canceled/"
+    data-ap-currency-code="USD"
+    data-ap-amount="5"
+    data-ap-note="Thanks for your contributions!!"
+    data-ap-shipping-address-required="false"
+    data-ap-payment-action="None"
+>
+<h2>$5</h2>
+</div>
+
+<div id="donate_10" style="display:none;"
+    data-ap-widget-type="expressPaymentButton"
+    data-ap-signature="<%=process.env.SIGNATURE_10%>"
+    data-ap-seller-id="<%=process.env.SELLER_ID%>"
+    data-ap-access-key="<%=process.env.SELLER_ACCESS_KEY%>"
+    data-ap-lwa-client-id="<%=process.env.CLIENT_ID%>"
+    data-ap-return-url="<%=process.env.URL%>success/"
+    data-ap-cancel-return-url="<%=process.env.URL%>canceled/"
+    data-ap-currency-code="USD"
+    data-ap-amount="10"
+    data-ap-note="Thanks for your contributions!!"
+    data-ap-shipping-address-required="false"
+    data-ap-payment-action="None"
+>
+<h2>$10</h2>
+</div>
+
+<div id="donate_20" style="display:none;"
+    data-ap-widget-type="expressPaymentButton"
+    data-ap-signature="<%=process.env.SIGNATURE_20%>"
+    data-ap-seller-id="<%=process.env.SELLER_ID%>"
+    data-ap-access-key="<%=process.env.SELLER_ACCESS_KEY%>"
+    data-ap-lwa-client-id="<%=process.env.CLIENT_ID%>"
+    data-ap-return-url="<%=process.env.URL%>success/"
+    data-ap-cancel-return-url="<%=process.env.URL%>canceled/"
+    data-ap-currency-code="USD"
+    data-ap-amount="20"
+    data-ap-note="Thanks for your contributions!!"
+    data-ap-shipping-address-required="false"
+    data-ap-payment-action="None"
+>
+<h2>$20</h2>
+</div>
+
+<div id="donate_50" style="display:none;"
+    data-ap-widget-type="expressPaymentButton"
+    data-ap-signature="<%=process.env.SIGNATURE_50%>"
+    data-ap-seller-id="<%=process.env.SELLER_ID%>"
+    data-ap-access-key="<%=process.env.SELLER_ACCESS_KEY%>"
+    data-ap-lwa-client-id="<%=process.env.CLIENT_ID%>"
+    data-ap-return-url="<%=process.env.URL%>success/"
+    data-ap-cancel-return-url="<%=process.env.URL%>canceled/"
+    data-ap-currency-code="USD"
+    data-ap-amount="50"
+    data-ap-note="Thanks for your contributions!!"
+    data-ap-shipping-address-required="false"
+    data-ap-payment-action="None"
+>
+<h2>$50</h2>
+</div>
+
+
+<div id="donate_100" style="display:none;"
+    data-ap-widget-type="expressPaymentButton"
+    data-ap-signature="<%=process.env.SIGNATURE_100%>"
+    data-ap-seller-id="<%=process.env.SELLER_ID%>"
+    data-ap-access-key="<%=process.env.SELLER_ACCESS_KEY%>"
+    data-ap-lwa-client-id="<%=process.env.CLIENT_ID%>"
+    data-ap-return-url="<%=process.env.URL%>success/"
+    data-ap-cancel-return-url="<%=process.env.URL%>canceled/"
+    data-ap-currency-code="USD"
+    data-ap-amount="100"
+    data-ap-note="Thanks for your contributions!!"
+    data-ap-shipping-address-required="false"
+    data-ap-payment-action="None"
+>
+<h2>$100</h2>
+</div>
+
+<div id="donate_250" style="display:none;"
+    data-ap-widget-type="expressPaymentButton"
+    data-ap-signature="<%=process.env.SIGNATURE_250%>"
+    data-ap-seller-id="<%=process.env.SELLER_ID%>"
+    data-ap-access-key="<%=process.env.SELLER_ACCESS_KEY%>"
+    data-ap-lwa-client-id="<%=process.env.CLIENT_ID%>"
+    data-ap-return-url="<%=process.env.URL%>success/"
+    data-ap-cancel-return-url="<%=process.env.URL%>canceled/"
+    data-ap-currency-code="USD"
+    data-ap-amount="250"
+    data-ap-note="Thanks for your contributions!!"
+    data-ap-shipping-address-required="false"
+    data-ap-payment-action="None"
+>
+<h2>$250</h2>
+</div>
+
+<div id="donate_500" style="display:none;"
+    data-ap-widget-type="expressPaymentButton"
+    data-ap-signature="<%=process.env.SIGNATURE_500%>"
+    data-ap-seller-id="<%=process.env.SELLER_ID%>"
+    data-ap-access-key="<%=process.env.SELLER_ACCESS_KEY%>"
+    data-ap-lwa-client-id="<%=process.env.CLIENT_ID%>"
+    data-ap-return-url="<%=process.env.URL%>success/"
+    data-ap-cancel-return-url="<%=process.env.URL%>canceled/"
+    data-ap-currency-code="USD"
+    data-ap-amount="500"
+    data-ap-note="Thanks for your contributions!!"
+    data-ap-shipping-address-required="false"
+    data-ap-payment-action="None"
+>
+<h2>$500</h2>
+</div>
+
+<div id="donate_1000" style="display:none;"
+    data-ap-widget-type="expressPaymentButton"
+    data-ap-signature="<%=process.env.SIGNATURE_1000%>"
+    data-ap-seller-id="<%=process.env.SELLER_ID%>"
+    data-ap-access-key="<%=process.env.SELLER_ACCESS_KEY%>"
+    data-ap-lwa-client-id="<%=process.env.CLIENT_ID%>"
+    data-ap-return-url="<%=process.env.URL%>success/"
+    data-ap-cancel-return-url="<%=process.env.URL%>canceled/"
+    data-ap-currency-code="USD"
+    data-ap-amount="1000"
+    data-ap-note="Thanks for your contributions!!"
+    data-ap-shipping-address-required="false"
+    data-ap-payment-action="None"
+>
+<h2>$1000</h2>
+</div><br>
+
+<!--Try Sandbox Link (Need to logout from current Amazon session)-->
+<h4> <a href=<%=process.env.URL%>sandbox>Try Sandbox</a> </h4>
+</center>
+
+<!--Script to change Buttons color based on the selected Amount-->
+<script>
+    document.getElementById('b_donate_5').onclick = function() {
+        document.getElementById("b_donate_5").style = 'background-color: #006400';
+        document.getElementById("b_donate_10").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_20").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_50").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_100").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_250").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_500").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_1000").style = 'background-color: #85bb65';
+    }
+    document.getElementById('b_donate_10').onclick = function() {
+        document.getElementById("b_donate_5").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_10").style = 'background-color: #006400';
+        document.getElementById("b_donate_20").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_50").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_100").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_250").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_500").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_1000").style = 'background-color: #85bb65';
+    }
+    document.getElementById('b_donate_20').onclick = function() {
+        document.getElementById("b_donate_5").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_10").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_20").style = 'background-color: #006400';
+        document.getElementById("b_donate_50").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_100").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_250").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_500").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_1000").style = 'background-color: #85bb65';
+    }
+    document.getElementById('b_donate_50').onclick = function() {
+        document.getElementById("b_donate_5").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_10").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_20").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_50").style = 'background-color: #006400';
+        document.getElementById("b_donate_100").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_250").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_500").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_1000").style = 'background-color: #85bb65';
+    }
+    document.getElementById('b_donate_100').onclick = function() {
+        document.getElementById("b_donate_5").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_10").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_20").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_50").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_100").style = 'background-color: #006400';
+        document.getElementById("b_donate_250").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_500").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_1000").style = 'background-color: #85bb65';
+    }
+    document.getElementById('b_donate_250').onclick = function() {
+        document.getElementById("b_donate_5").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_10").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_20").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_50").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_100").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_250").style = 'background-color: #006400';
+        document.getElementById("b_donate_500").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_1000").style = 'background-color: #85bb65';
+    }
+
+    document.getElementById('b_donate_500').onclick = function() {
+        document.getElementById("b_donate_5").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_10").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_20").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_50").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_100").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_250").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_500").style = 'background-color: #006400';
+        document.getElementById("b_donate_1000").style = 'background-color: #85bb65';
+    }
+
+    document.getElementById('b_donate_1000').onclick = function() {
+        document.getElementById("b_donate_5").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_10").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_20").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_50").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_100").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_250").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_500").style = 'background-color: #85bb65';
+        document.getElementById("b_donate_1000").style = 'background-color: #006400';
+    }
+</script>
+
+<!--JQuery Script File & Function for donation Widget-->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+$(document).ready(function(){
+  $(".showHideDiv").click(function(){
+    var clickedBtnId = $(this).attr('id');
+    if(clickedBtnId === 'b_donate_5') {
+      $('#donate_5').show();
+      $('#donate_10').hide();
+      $('#donate_20').hide();
+      $('#donate_50').hide();
+      $('#donate_100').hide();
+      $('#donate_250').hide();
+      $('#donate_500').hide();
+      $('#donate_1000').hide();
+    } else if(clickedBtnId === 'b_donate_10') {
+      $('#donate_5').hide();
+      $('#donate_10').show();
+      $('#donate_20').hide();
+      $('#donate_50').hide();
+      $('#donate_100').hide();
+      $('#donate_250').hide();
+      $('#donate_500').hide();
+      $('#donate_1000').hide();
+    } else if(clickedBtnId === 'b_donate_20') {
+      $('#donate_5').hide();
+      $('#donate_10').hide();
+      $('#donate_20').show();
+      $('#donate_50').hide();
+      $('#donate_100').hide();
+      $('#donate_250').hide();
+      $('#donate_500').hide();
+      $('#donate_1000').hide();
+    } else if(clickedBtnId === 'b_donate_50') {
+      $('#donate_5').hide();
+      $('#donate_10').hide();
+      $('#donate_20').hide();
+      $('#donate_50').show();
+      $('#donate_100').hide();
+      $('#donate_250').hide();
+      $('#donate_500').hide();
+      $('#donate_1000').hide();
+    } else if(clickedBtnId === 'b_donate_100') {
+      $('#donate_5').hide();
+      $('#donate_10').hide();
+      $('#donate_20').hide();
+      $('#donate_50').hide();
+      $('#donate_100').show();
+      $('#donate_250').hide();
+      $('#donate_500').hide();
+      $('#donate_1000').hide();
+    } else if(clickedBtnId === 'b_donate_250') {
+      $('#donate_5').hide();
+      $('#donate_10').hide();
+      $('#donate_20').hide();
+      $('#donate_50').hide();
+      $('#donate_100').hide();
+      $('#donate_250').show();
+      $('#donate_500').hide();
+      $('#donate_1000').hide();
+    } else if(clickedBtnId === 'b_donate_500') {
+      $('#donate_5').hide();
+      $('#donate_10').hide();
+      $('#donate_20').hide();
+      $('#donate_50').hide();
+      $('#donate_100').hide();
+      $('#donate_250').hide();
+      $('#donate_500').show();
+      $('#donate_1000').hide();
+    } else if(clickedBtnId === 'b_donate_1000') {
+      $('#donate_5').hide();
+      $('#donate_10').hide();
+      $('#donate_20').hide();
+      $('#donate_50').hide();
+      $('#donate_100').hide();
+      $('#donate_250').hide();
+      $('#donate_500').hide();
+      $('#donate_1000').show();
+    }
+  });
+});
+</script>
+
+<%- include("footer") -%>
