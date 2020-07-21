@@ -1,3 +1,5 @@
+// Geocoder configs //
+
 "use strict";
 const NodeGeocoder = require('node-geocoder');
 require('dotenv').config();

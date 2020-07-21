@@ -1,3 +1,4 @@
+// Function to get all the Website users from the Database //
 const _ = require("lodash");
 const AWS = require("aws-sdk");
 

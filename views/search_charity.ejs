@@ -1,4 +1,7 @@
+<!--Page used to search the Charities in the USA-->
 <%- include("header") -%>
+<title>Charity Station | Search Charities in the USA</title>
+
 <br>
 <br>
 <h2 style="text-align:center">You can search Charities in the USA by using this search tool.</h2>
@@ -6,7 +9,7 @@
 <center>
 <br>
 <p>You can start a Fundraising on our Website for any Charity Orgnization you want to support!</p>
-    <div id="search" ></div>
+    <div class="register-form" >
     <form action="" method="POST" style="display:full">
         Charity Name or Keyword:
         <br>
@@ -18,12 +21,12 @@
             <input id = "form_city" type="text" required = "true" minlength="3" name = "city" style="display:full">
             <br>
             <br>
-            The State:
+            The State: (NY, CA,..)
             <br>
             <input id = "form_state" type="text" required = "true"  minlength="2" maxlength="2" name = "state" style="display:full">
             <br>
             <br>
-            <input type="submit" value="search">
+            <input type="submit" value="Search">
         </form>
     </div>
 </center>

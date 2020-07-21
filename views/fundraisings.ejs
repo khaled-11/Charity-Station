@@ -1,6 +1,45 @@
+<!--Page used to list all Fundraisings-->
 <%- include("header") -%>
+<title>Charity Station | Fundraisings</title>
+<center>
 <br>
 <br>
+<h2 style="text-align:center">Here is our popular Fundraisings. Please share it with your Friends!!</h2>
+<br>
 
+</center>
+<br>
+<div class="table-responsive-sm">
+<table class="table table-hover" id="tbl">
+<thead>
+  <tr>
+    <th>Fundraising Name:</th>
+    <th>Fundraising Tagline:</th>
+    <th>Fundraising Limit:</th>
+    <th>Current Reached:</th>
+    <th>Orgnization Name:</th>
+    <th>Orgnization Category:</th>
+  </tr>
+</thead>
+<tbody>
 
+<% for (const eve of data) { %>
+      <tr>
+        <td><%= eve.fundraising_name.S %></td>
+        <td><%= eve.fundraising_tagline.S %></td>
+        <td>$<%= eve.fundraising_limit.N %></td>
+        <td>$<%= eve.fundraising_current_limit.N %></td>
+        <td><%= eve.org_name.S %></td>
+        <td><%= eve.org_cat.S %></td>
+        <td></td>
+  
+        <td class="d-print-none" align="center">
+          <a class="btn btn-sm btn-info" href="/fund_display?page=<%= eve.fundraising_name.S %>">Fundraising Page</a>
+        </td>
+
+        </tr>
+    <% } %>
+</tbody>
+</table>
+</div>
 <%- include("footer") -%>

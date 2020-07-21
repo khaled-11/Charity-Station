@@ -1,3 +1,4 @@
+// Function to get a specific Event from the Database //
 const _ = require("lodash");
 const AWS = require("aws-sdk");
 

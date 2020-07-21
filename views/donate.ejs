@@ -1,7 +1,13 @@
+<!--Page used for all donations-->
 <%- include("header") -%>
+<title>Charity Station | Donate</title>
 <center>
 <br> <h1>Thanks you for helping us!</h1>
 <br> <h2>Please choose how much do you want to donate below:</h2>
+
+<script>
+    document.cookie = "donation_for=<%=name%>;path=/";
+</script>
 
 <!--Temporary Custom Donation Buttons Widget-->
 <div class="donate">
@@ -9,6 +15,8 @@
     <input class="showHideDiv" type="button" value="$10" id="b_donate_10" style="display:full"></button>
     <input class="showHideDiv" type="button" value="$20" id="b_donate_20" style="display:full"></button>
     <input class="showHideDiv" type="button" value="$50" id="b_donate_50" style="display:full"></button>
+    <br>
+    <br>
     <input class="showHideDiv" type="button" value="$100" id="b_donate_100" style="display:full"></button>
     <input class="showHideDiv" type="button" value="$250" id="b_donate_250" style="display:full"></button>
     <input class="showHideDiv" type="button" value="$500" id="b_donate_500" style="display:full"></button>
@@ -156,7 +164,7 @@
 </div><br>
 
 <!--Try Sandbox Link (Need to logout from current Amazon session)-->
-<h4> <a href=<%=process.env.URL%>sandbox>Try Sandbox</a> </h4>
+<h4> <a href=<%=process.env.URL%>sandbox?name=<%=name%>>Try Sandbox</a> </h4>
 </center>
 
 <!--Script to change Buttons color based on the selected Amount-->

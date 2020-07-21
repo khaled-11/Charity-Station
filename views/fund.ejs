@@ -1,0 +1,66 @@
+<!--Page used to add Fundraisings-->
+<%- include("header") -%>
+<title>Charity Station | View Fundraising</title>
+<div id="fb-root"></div>
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v7.0&appId=3095870117116314&autoLogAppEvents=1" nonce="6FVUCG3j"></script>
+<center>
+<br>
+<br>
+<h2 style="text-align:center">Here is the Fundraising Page! Please share it with your Friends!!</h2>
+<br>
+ <img src="<%=image%>" alt="Event" width="300" height="300"> 
+ <br>
+<br>
+<h3> 
+    <%=fundName%>
+</h3>
+<br>
+</center>
+<ul>
+
+<li style= "font-size: 20px; font-weight: 600"> 
+    Fundraising tagline: <%=tagline%>
+</li>
+<li style= "font-size: 20px; font-weight: 600"> 
+    Fundraising Started By: <%=uName%>
+</li>
+<li style= "font-size: 20px; font-weight: 600"> 
+    Fundraising Limit: $<%=limit%>
+</li>
+
+<li style= "font-size: 20px; font-weight: 600"> 
+    Fundraising Current Reached: $<%=current_limit%>
+</li>
+
+<li style= "font-size: 20px; font-weight: 600"> 
+    Orgnization Name: <%=orgName%>
+</li>
+<li style= "font-size: 20px; font-weight: 600"> 
+    Orgnization Category: <%=cat%>
+</li>
+
+<li style= "font-size: 20px; font-weight: 600"> 
+    Orgnization Address: <%=address%>
+</li>
+</ul>
+<br>
+<h6>
+Current Donors = <% for (i = 1 ; i < donors.length ; ++i) { %>
+    <%= donors[i].S %>,
+    <% } %>
+</h6>
+<br>
+<br>
+
+<center>
+
+<a class="btn btn-sm btn-success" href="/donate?name=<%=fundName%>">Donate</a>
+<a class="btn btn-sm btn-danger" href="/sandBox?name=<%=fundName%>">Sandbox</a>
+<br>
+<br>
+<div class="fb-share-button" data-href="<%=process.env.URL%>fund_display?page=<%=fundName%>" data-layout="button" data-size="large"><a target="_blank" href="<%=process.env.URL%>fund?name=<%=fundName%>" class="fb-xfbml-parse-ignore">Share</a></div>
+<br>
+<br>
+<a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false">Tweet</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+</center>
+<%- include("footer") -%>

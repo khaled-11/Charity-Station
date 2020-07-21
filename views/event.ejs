@@ -1,4 +1,6 @@
+<!--Template page used to display Event-->
 <%- include("header") -%>
+<title>Charity Station | View Event</title>
 <div id="fb-root"></div>
 <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v7.0&appId=3095870117116314&autoLogAppEvents=1" nonce="6FVUCG3j"></script>
 <center>
@@ -6,15 +8,15 @@
 <br>
 <h2 style="text-align:center">Here is the Event Page! Please share it with your Friends!!</h2>
 <br>
- <img src="<%=link%>" alt="Event" width="300" height="300"> 
+ <img src="<%=image%>" alt="Event" width="300" height="300"> 
  <br>
 <br>
+<h3>
+    <%=name%>
+</h3>
 <br>
 </center>
 <ul>
-<li style= "font-size: 20px; font-weight: 600"> 
-    Event Name: <%=name%>
-</li>
 
 <li style= "font-size: 20px; font-weight: 600"> 
     Event Category: <%=category%>
@@ -33,7 +35,7 @@
 </li>
 </ul>
 <center>
-<div class="fb-share-button" data-href="https://developers.facebook.com/docs/plugins/" data-layout="button" data-size="large"><a target="_blank" href="<%=process.env.URL%>event?name=<%=name%>" class="fb-xfbml-parse-ignore">Share</a></div>
+<div class="fb-share-button" data-href="<%=process.env.URL%>event?name=<%=name%>" data-layout="button" data-size="large"><a target="_blank" href="<%=process.env.URL%>event?name=<%=name%>" class="fb-xfbml-parse-ignore">Share</a></div>
 <br>
 <br>
 <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false">Tweet</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>

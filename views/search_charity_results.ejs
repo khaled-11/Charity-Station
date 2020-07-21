@@ -1,9 +1,11 @@
+<!--Page used to display the search results-->
 <%- include("header") -%>
+<title>Charity Station | Search Results</title>
 <br>
 <br>
 <h2 style="text-align:center">Here is the what was found.</h2>
 <br>
-<div class="table-sm">
+<div class="table-responsive-sm">
     <table class="table table-hover" id="tbl">
   <thead>
     <tr>
@@ -21,13 +23,13 @@
       <tr>
         <td><%= data.charityName %></td>
         <td><%= data.ein %></td>
-        <td><%= data.url %></td>
-        <td><%= data.donationUrl %></td>
+        <td> <a href="<%= data.url %>">Info Page</a></td>
+        <td> <a href="<%= data.donationUrl %>">Donation Link</a></td>
         <td><%= data.city %>, <%= data.state %> <%= data.zipCode %></td> 
         <td><%= data.category %></td>
   
         <td class="d-print-none" align="center">
-          <a class="btn btn-sm btn-success" href="/fund?name=<%= data.charityName %>">Fundraising</a>
+          <a class="btn btn-sm btn-success" href="/fund?name=<%= data.charityName %>&ein=<%= data.ein %>&cat=<%= data.category %>&address=<%= data.city %>, <%= data.state %> <%= data.zipCode %>">Fundraising</a>
 <br><br>
 
           <a class="btn btn-sm btn-info" href="/map?longitude=<%= data.longitude %>&latitude=<%= data.latitude %>">Show Map</a>

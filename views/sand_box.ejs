@@ -1,5 +1,9 @@
+<!--Page used for Sandbox payments-->
 <%- include("header") -%>
-
+<title>Charity Station | Sandbox Tesing</title>
+<script>
+    document.cookie = "donation_for=<%=name%>;path=/";
+</script>
 <center>
 <br>
 <h2>You can test the integration as below below:</h2>
@@ -28,6 +32,8 @@
     <input class="showHideDiv" type="button" value="$10" id="b_donate_10" style="display:full"></button>
     <input class="showHideDiv" type="button" value="$20" id="b_donate_20" style="display:full"></button>
     <input class="showHideDiv" type="button" value="$50" id="b_donate_50" style="display:full"></button>
+    <br>
+    <br>
     <input class="showHideDiv" type="button" value="$100" id="b_donate_100" style="display:full"></button>
     <input class="showHideDiv" type="button" value="$250" id="b_donate_250" style="display:full"></button>
     <input class="showHideDiv" type="button" value="$500" id="b_donate_500" style="display:full"></button>

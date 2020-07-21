@@ -11,6 +11,8 @@ createUsersTable = require("./local_modules/database/create_users_table"),
 createDataTable = require("./local_modules/database/create_data_table"),
 createWebTable = require("./local_modules/database/create_web_table"),
 updateWebUser = require("./local_modules/database/update_web_user"),
+updateFundDonors = require("./local_modules/database/update_fund_donors"),
+updateFundLimit = require("./local_modules/database/update_fund_limit"),
 getWebUser = require("./local_modules/database/get_web_user_data"),
 getAllUsers = require("./local_modules/database/get_all_users"),
 createWebUser = require("./local_modules/database/create_web_user"),
@@ -18,7 +20,10 @@ getAllWebEmails = require("./local_modules/database/get_all_web_emails"),
 Auth = require("./local_modules/database/auth"),
 addEvent = require("./local_modules/database/add_event"),
 getEvents = require("./local_modules/database/get_events"),
-getAllEvents = require("./local_modules/database/get_all_events");
+getAllEvents = require("./local_modules/database/get_all_events"),
+addFund = require("./local_modules/database/add_fund"),
+getFunds = require("./local_modules/database/get_funds"),
+getAllFunds = require("./local_modules/database/get_all_funds");
 
 // updateState = require("./local_modules/database/update_state"),
 // exists = require("./local_modules/database/check_data"),
@@ -38,12 +43,14 @@ getAllEvents = require("./local_modules/database/get_all_events");
 // mSetup();
 
 // Function to create the Database Tables if does not exist.
-// Table for Messenger Users
-createUsersTable();
 // Data Table for Website and Messenger.
 createDataTable();
 // Users Table for Website.
 createWebTable();
+// Table for Messenger Users
+createUsersTable();
+// Adding Dummy Fundraising for the AppS
+addFund("General Donation", "Testing Fundraising for the Platform", "Khaled", "10000", "https://charity-station.com/Logo.png", "Charity Station", "Software", "XX", "New York, NY");
 
 // Creating the App object in express.
 app = express();
@@ -63,6 +70,477 @@ app.use(bodyParser.json());
 app.set("views", path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, "public")));
 app.set("view engine", "ejs");
+
+
+
+
+///// Production Amazon Pay page with Custom Donation Widget /////
+app.get(`/donate`, async function(request, response) {
+  if (request.session.loggedin) {
+    nm = "";
+    for ( i = 0 ; i < request.query.name.length ; ++i){
+      if(request.query.name[i] != ' ' && request.query.name[i] != `'`){
+        nm += request.query.name[i];
+      }
+      if (request.query.name[i] == `'`){
+        nm +="%27";
+      }
+      if (request.query.name[i] == ' '){
+        nm +="%20";
+      }
+    }
+    console.log(nm)
+    response.render("donate",{name:nm});
+  } else{
+    response.render("login",{msg:"You are not logged in."});
+  }
+});
+
+///// Amazon SandBox Pay page with Custom Donation Widget /////
+app.get(`/sandbox`, async function(request, response) {
+  if (request.session.loggedin) {
+    nm = "";
+    for ( i = 0 ; i < request.query.name.length ; ++i){
+      if(request.query.name[i] != ' ' && request.query.name[i] != `'`){
+        nm += request.query.name[i];
+      }
+      if (request.query.name[i] == `'`){
+        nm +="%27";
+      }
+      if (request.query.name[i] == ' '){
+        nm +="%20";
+      }
+    }
+    console.log(nm)
+    response.render("sand_box",{name:nm});
+  } else{
+    response.render("login",{msg:"You are not logged in."});
+  }
+});
+
+///// Page to Display All Current Events. This page is public. /////
+app.get(`/events`, async function(request, response) {
+  eve = await getAllEvents();
+  // Add Control For Admin(Sandbox Account)
+  if(request.session.username && request.session.username === "info@techolopia.solutions"){
+    response.render("events",{dis:"full",data:eve});
+  } else{
+    response.render("events",{dis:"none",data:eve});
+  }
+});
+
+///// Page used to ask for adding event information /////
+app.get(`/add_event`, async function(request, response) {
+  if (request.session.loggedin) {
+    if(request.session.username === "info@techolopia.solutions"){
+      response.render("add_event",{exists:null});
+    } else{
+      response.send("Why are you trying to access from here??");
+    }
+  } else{
+    response.render("login",{msg:"You are not logged in."});
+  }
+});
+
+///// Post the Event Data, then save it in DynamoDB and send Notifications /////
+app.post(`/add_event`, async function(request, response) {
+if (request.session.loggedin && request.session.username === "info@techolopia.solutions") {
+  t = await getEvents(request.body.name);
+  if(t.Item){
+    response.render("add_event",{exists:"This event already exists!!"});
+  } else{
+  await addEvent(request.body.name, request.body.category, request.body.location, request.body.dates, request.body.info, request.body.image);
+  pName = "";
+  for (i = 0 ; i < request.body.name.length ; ++i){
+    if (request.body.name[i] != ' '){
+    pName += `${request.body.name[i]}`;
+    } else {
+      pName += "%20"
+    }
+  }
+  response.redirect(`/event?name=${pName}`)
+  emails = await getAllWebEmails();
+  for(i = 0 ; i < emails.length ; ++i){
+    text ="";
+    text += `Hi ${emails[i].u_name.S},\n\nThe following Event was just added! Please visit the link and share with your friends.\n\nEvent Name: ${request.body.name}\nEvent Link: ${process.env.URL}event?page=${pName}\n\nThank you,\nCharity Station`
+    sendEmail.sendNotification(emails[i].email.S,`New Event (${request.body.name}) is here!!`,text)
+  }}} else {
+    response.render("index");
+  }
+});
+
+///// Template Page used to display the Events data from DynamoDB /////
+app.get(`/event`, async function(request, response) {
+  d = await getEvents(request.query.name);
+  response.render('event',{name:d.Item.event_name.S, category:d.Item.event_category.S, location:d.Item.event_location.S, dates:d.Item.event_dates.S, info:d.Item.event_info.S, image:d.Item.event_image.S})
+});
+
+///// Page to Display All Current Fundraisings. This page is public. /////
+app.get(`/fundraisings`, async function(request, response) {
+eve = await getAllFunds();
+response.render("fundraisings",{data:eve});
+});
+
+
+///// Page used to ask for adding Fundraising information /////
+app.get("/fund", (req, res) => {
+if (req.session.loggedin) {
+  res.render("start_fund", { exists:null, name: req.query.name, ein:req.query.ein, cat:req.query.cat, address:req.query.address });
+} else{
+  res.render("login", {msg:"You are not logged in."});
+}
+});
+
+///// Post the Fundraising Data, then save it in DynamoDB and send Notifications /////
+app.post(`/fund`, async function(request, response) {
+if (request.session.loggedin) {
+  nam = await getWebUser(request.session.username)
+  t = await getFunds(request.body.fund_name);
+  if(t.Item){
+    response.render("start_fund", {exists:"This Fundraising already exists", name: request.body.fund_name, ein:request.body.ein, cat:request.body.cat, address:request.body.address});
+  } else{
+    await addFund(request.body.fund_name, request.body.tagline, nam.Item.u_name.S, request.body.limit, request.body.image, request.body.org_name, request.body.cat, request.body.ein, request.body.address);
+    fName = "";
+    for (i = 0 ; i < request.body.fund_name.length ; ++i){
+      if (request.body.fund_name[i] != ' '){
+      fName += `${request.body.fund_name[i]}`;
+      } else {
+        fName += "%20"
+      }
+  }
+  response.redirect(`/fund_display?page=${fName}`)
+  emails = await getAllWebEmails();
+  for(i = 0 ; i < emails.length ; ++i){
+    text ="";
+    text += `Hi ${emails[i].u_name.S},\n\nThe following Fundraising was just added! Please visit the link and share with your friends.\n\nFundraising Name: ${request.body.fund_name}\nEvent Link: ${process.env.URL}fund_display?page=${fName}\n\nThank you,\nCharity Station`
+    console.log(emails[i].u_name.S, text);
+    sendEmail.sendNotification(emails[i].email.S,`New Fundraising (${request.body.fund_name}) is here!!`,text)
+  }
+  }} else{
+  response.render("login", {msg:"You are not logged in."});
+}
+});
+
+///// Template Page used to display the Fundraising data from DynamoDB /////
+app.get(`/fund_display`, async function(request, response) {
+d = await getFunds(request.query.page);
+response.render('fund',{fundName:d.Item.fundraising_name.S,donors:d.Item.fundraising_donors.L, image:d.Item.fundraising_image.S, tagline:d.Item.fundraising_tagline.S, limit:d.Item.fundraising_limit.N, current_limit:d.Item.fundraising_current_limit.N, uName:d.Item.fundraising_start.S, orgName:d.Item.org_name.S, cat:d.Item.org_cat.S, address:d.Item.org_address.S, ein:d.Item.org_ein.S })
+});
+
+///// Page used to logout the user from the Website Auth itself /////
+app.get(`/logout`, function(request, response) {
+  if (request.session.loggedin) {
+    request.session.destroy()
+    response.clearCookie('connect.sid')
+    response.render("logout");
+  } else {
+    response.render("login", {msg:"You are not logged in."});
+  }
+  response.end();
+});
+
+///// Page used to Login with Amazon Account in Production View /////
+app.get(`/a_login`, async function(request, response) {
+  if (request.session.loggedin) {
+    users = await getAllUsers();
+    response.render("a_login",{t:"none", m:"You are now logged in!", users:users, view:'none', dis:'none'});
+} else{
+    users = await getAllUsers();
+    sendData = [];
+    for (i = 0 ; i < users.length ; i++){
+      sendData[i] = users[i].email.S;
+    }
+    response.render("a_login",{t:"intial", m:"", users:users, view:'intial', dis:'full'});
+  }
+});
+
+///// Post the Amazon Login Data for Registeration and send different views /////
+app.post(`/a_login`, async function(request, response) {
+  if(request.body.password && request.body.email && request.body.email.length > 1){
+    email = request.body.email.toLowerCase();
+    password = md5(request.body.password);
+    request.session.loggedin = true;
+    request.session.username = email;
+    response.render("confirm",{name:request.body.name});
+
+  if (request.body.postalCode === "" || request.body.postalCode ==='undefined'){
+    p_code = "NY 10009"
+  } else{
+    p_code = request.body.postalCode;
+  }
+
+  geo_coder.geocode(p_code)
+  .then((res)=> {
+    area = res[0].formattedAddress.substring(2);
+    // Update the data in the database
+    createWebUser(email,password,request.body.name,area);
+  });
+    } 
+  else if(request.body.name && request.body.email ){
+    users = await getAllUsers();
+    request.session.loggedin = true;
+  request.session.username = request.body.email;
+    response.render("a_login",{t:"none", m:"You are now logged in!", users:users, view:'none', dis:'none'});
+  }else{
+    response.render("a_login",{t:"none", m:"You are not logged in with the sandBox Account!", users:users, view:'none', dis:'none'});
+  }
+});
+
+///// Page used to display Satelite Map for any Charity Found in Search /////
+app.get('/map', async function(request, response) {
+  if (request.session.loggedin) {
+  response.render("show_map",{lo:request.query.longitude,la:request.query.latitude});
+} else{
+  response.render("login",{msg:"You are not logged in."});
+}
+});
+
+///// Page used to search for Charities in the USA /////
+app.get(`/search_charity`, async function(request, response) {
+  if (request.session.loggedin) {
+  response.render("search_charity");
+  } else{
+    response.render("login", {msg:"You are not logged in."});
+  }
+});
+
+///// Post the search queries and send the Results /////
+app.post(`/search_charity`, async function(request, response) {
+  if (request.session.loggedin) {
+  dat = await getCharity(request.body.name,request.body.city,request.body.state.toUpperCase());
+  response.render("search_charity_results", { model: dat.data });
+} else{
+  response.render("login", {msg:"You are not logged in."});
+}
+});
+
+///// Page used to display the Receipts to the user /////
+app.get(`/profile`, async function(request, response) {
+  if (request.session.loggedin) {
+    userData = await getWebUser(request.session.username)
+    response.render("profile",{name: userData.Item.u_name.S ,donat: userData.Item.donated_for.L,donat2: userData.Item.donation_time.L, donat3: userData.Item.receipt_number.L, donat4: userData.Item.donations.L});
+  } else{
+    response.render("login",{msg:"You are not logged in."});
+  }
+});
+
+//// Page used to redirect if the user entered the password wrong first time ////
+app.get(`/auth`, async function(request, response) {
+  if (request.session.loggedin) {
+    response.render("log")
+  } else{
+    response.render("login",{msg:"You are not logged in."});
+  }
+});
+
+///// Page used to Login the user using the user credentials /////
+app.post(`/auth`, async function(request, response) {
+  console.log(request.headers)
+  pass = md5(request.body.password);
+  email = request.body.username.toLowerCase();
+t = await Auth(email, pass);
+if(t == true){
+  request.session.loggedin = true;
+  request.session.username = email;
+  response.redirect(request.headers.referer)
+} else {
+  response.render("login",{msg:"You entered a wrong password."});
+}
+});
+
+///// Template Page to download the users receipts /////
+app.get('/download', async function(request, response){
+  response.download(`./rcs/${request.session.username}/${request.query.no}.txt`, `${request.query.no}.txt`);
+});
+
+///// Page used to login the user with Sandbox Account /////
+app.get("/s_login", async (request, response) => {
+  if (request.session.loggedin) {
+    users = await getAllUsers();
+    response.render("s_login",{t:"none", m:"You are now logged in!", users:users, view:'none', dis:'none'});
+} else{
+    users = await getAllUsers();
+    sendData = [];
+    for (i = 0 ; i < users.length ; i++){
+      sendData[i] = users[i].email.S;
+    }
+    response.render("s_login",{t:"intial", m:"", users:users, view:'intial', dis:'full'});
+  }
+});
+
+///// Post the data and send different views /////
+app.post(`/s_login`, async function(request, response) {
+  if(request.body.password && request.body.email && request.body.email.length > 1){
+    email = request.body.email;
+    password = md5(request.body.password);
+    request.session.loggedin = true;
+    request.session.username = email;
+    response.render("confirm",{name:request.body.name});
+
+  if (request.body.postalCode === "" || request.body.postalCode ==='undefined'){
+    p_code = "NY 10009"
+  } else{
+    p_code = request.body.postalCode;
+  }
+
+  geo_coder.geocode(p_code)
+  .then((res)=> {
+    area = res[0].formattedAddress.substring(2);
+    // Update the data in the database
+    createWebUser(email,password,request.body.name,area);
+  });
+    } 
+  else if(request.body.name && request.body.email ){
+    users = await getAllUsers();
+    request.session.loggedin = true;
+    request.session.username = request.body.email;
+    response.render("s_login",{t:"none", m:"You are now logged in!", users:users, view:'none', dis:'none'});
+  }else{
+    response.render("s_login",{t:"none", m:"You are not logged in with your Amazon Account!", users:users, view:'intial', dis:'none'});
+  }
+});
+
+/// Success Page for successful payment in any settings. ///
+app.get(`/success`, async function(request, response) {
+  // Get the cookie saved in the browser.
+  ck = request.headers.cookie;
+  s = "";
+  // Loop to read the Messenger PSID from the cookie
+  for(i = 0 ; i < ck.length ; ++i){
+    if (ck[i] == 's' && ck[i + 1] =='_' && ck[i + 2] =='i'&& ck[i + 3] =='d' && ck[i + 4] =='_'){
+      for(j = i+8 ; j < ck.length ; ++j){
+        s += ck[j];
+        if(ck[j+1] == ';'){
+        j = ck.length;
+        i = ck.length;
+      }
+        ++i;
+      } 
+    }
+  }
+  // This Messenger Receipt Template will be sent Once.
+  // If the user refreshed the page, the cookie will be deleted.
+  if(s !== ""){
+  msg = {  
+    "attachment":{
+      "type":"template",
+      "payload":{
+        "template_type":"receipt",
+        "recipient_name":"Lenda Ott",
+        "order_number":request.query.orderReferenceId,
+        "currency":"USD",
+        "payment_method":"Amazon Account: len...@gm...",        
+        "order_url":"https://49b40fcaffa9.ngrok.io/",         
+        "summary":{
+          "subtotal":request.query.amount,
+          "total_cost":request.query.amount
+        },
+        "elements":[
+          {
+            "title":"Donation",
+            "subtitle":"Thanks for your contributions!",
+            "quantity":1,
+            "price":request.query.amount,
+            "currency":request.query.currencyCode,
+            "image_url":"https://techolopia.com/wp-content/uploads/2020/07/Logo.png"
+          }
+        ]
+      }
+    }
+  }
+  action = null;
+  callSendAPI(s, msg, action, "first")
+  }
+  // Sending the success page for IOS and Desktop users, and send website main page if refreshed or accessed from outside. 
+  if(request.headers['user-agent'] && request.headers['user-agent'].includes("FBAN/MessengerLiteForiOS")){
+    response.render("./donate/success_ios",{p_info:request.query, fb_id:s});
+  } else if(request.headers.referer && (request.headers.referer.includes("https://payments.amazon.com/") || request.headers.referer.includes("https://payments-sandbox.amazon.com") || request.headers.referer.includes("https://apay-us.amazon.com/"))){
+    s = "";
+    // Loop to read the Messenger PSID from the cookie
+    for(i = 0 ; i < ck.length ; ++i){
+      if (ck[i] == 'd' && ck[i + 1] =='o' && ck[i + 2] =='n'&& ck[i + 3] =='a' && ck[i + 4] =='t' && ck[i + 5] =='i' && ck[i + 6] =='o'){
+        for(j = i+13 ; j < ck.length ; ++j){
+          s += ck[j];
+          if(ck[j+1] == ';'){
+          j = ck.length;
+          i = ck.length;
+        }
+          ++i;
+        } 
+      }
+    }
+    s2="";
+    for( i = 0 ; i < s.length ; ++i){
+      if (s[i] == '%' && s[i+1] == '2' && s[i+2] == '0'){
+        i += 2;
+        s2 += ' ';
+      } else if (s[i] == '%' && s[i+1] == '2' && s[i+2] == '7'){
+        i += 2;
+        s2 += "'";
+      } else{
+        s2 += s[i];
+      }
+    }
+
+    donorData = await getWebUser(request.session.username);
+    donorName = donorData.Item.u_name.S;
+
+    updateFundLimit(s2, parseInt(request.query.amount));
+    updateFundDonors(s2, donorName)
+
+    rc=`---Charity Station Recipt---\nReceipt Number: ${request.query.orderReferenceId}\nAmazon Email: ${request.session.username}\nName: ${donorName}\n`;
+    response.render("success",{reason:s2, uName: donorName, p_info:request.query,email:request.session.username});
+    t = await getWebUser(request.session.username);
+    await updateWebUser(request.session.username,"donations",t.Item.donations.L.length, request.query.amount )
+    rc += `Amount: $${request.query.amount}\n`
+    await updateWebUser(request.session.username,"donated_for",t.Item.donations.L.length, s2 )
+    rc += `Donation Reason: ${s2}\n`
+    await updateWebUser(request.session.username,"donation_time",t.Item.donations.L.length, `${Date().substring(0,34)}` )
+    rc += `Donation Time: ${Date().substring(0,34)}\n`
+    await updateWebUser(request.session.username,"receipt_number",t.Item.donations.L.length, request.query.orderReferenceId)
+    rc += `------------------------\nThanks for your help!!`
+    if (!fs.existsSync(`./rcs/${request.session.username}`)){
+      fs.mkdirSync(`./rcs/${request.session.username}`);
+    }
+    /// Send Instant Email Notification ///
+    sendEmail.sendNotification(request.session.username,"Charity Station Receipts",`Hi, ${donorName},\n\nThis is your recipt information:\n\n${rc}\n\n\nThanks,\nCharity Station`)
+    await fs.writeFile(`./rcs/${request.session.username}/${request.query.orderReferenceId}.txt`, rc, function(err) {
+      if (err) {
+                return console.log(err)
+                }
+                console.log("The file was saved!")
+        })
+  }  else {
+    response.render("index");
+}
+});
+
+// Canceled page for IOS and Desktop users.
+app.get(`/canceled`, function(request, response) {
+  if(request.headers['user-agent'] && request.headers['user-agent'].includes("FBAN/MessengerLiteForiOS")){
+    response.render("./donate/canceled_ios");
+  } else if(request.headers.referer && (request.headers.referer.includes("https://payments.amazon.com/") || request.headers.referer.includes("https://payments-sandbox.amazon.com"))){
+    response.render("./donate/canceled");
+  } else {
+    response.render("canceled");
+  }
+});
+
+// This page loads when the user click Amazon Login from Messenger and he is using Desktop.
+app.get(`/desktop`, async function(request, response) {
+  t = await getAllKey();
+  l = false;
+  for(i = 0 ; i < t.length ; ++i){
+    if(t[i].PSID.S === request.query.s)
+    l = true;
+  }
+  // If Messenger user, pass resources to send the new Desktop Login Link to the user.
+  if(l == true){
+  response.render("desktop",{call:callSendAPI, r:request});
+  } else {
+    response.render("index");
+  }
+});
 
 // When Any one try to access the main domain page. This routes for the main page of the Application.
 app.get(`/`, async function(request, response) {
@@ -120,338 +598,7 @@ app.post('/', function (req, res) {
 }});
 
 
-// Success Page that load when the user make successful payment.
-app.get(`/success`, async function(request, response) {
-  // Get the cookie saved in the browser.
-  ck = request.headers.cookie;
-  s = "";
-  // Loop to read the Messenger PSID from the cookie
-  for(i = 0 ; i < ck.length ; ++i){
-    if (ck[i] == 's' && ck[i + 1] =='_' && ck[i + 2] =='i'&& ck[i + 3] =='d' && ck[i + 4] =='_'){
-      for(j = i+8 ; j < ck.length ; ++j){
-        s += ck[j];
-        if(ck[j+1] == ';'){
-        j = ck.length;
-        i = ck.length;
-      }
-        ++i;
-      } 
-    }
-  }
-  // This Messenger Receipt Template will be sent Once.
-  // If the user refreshed the page, the cookie will be deleted.
-  if(s !== ""){
-  msg = {  
-    "attachment":{
-      "type":"template",
-      "payload":{
-        "template_type":"receipt",
-        "recipient_name":"Lenda Ott",
-        "order_number":request.query.orderReferenceId,
-        "currency":"USD",
-        "payment_method":"Amazon Account: len...@gm...",        
-        "order_url":"https://49b40fcaffa9.ngrok.io/",         
-        "summary":{
-          "subtotal":request.query.amount,
-          "total_cost":request.query.amount
-        },
-        "elements":[
-          {
-            "title":"Donation",
-            "subtitle":"Thanks for your contributions!",
-            "quantity":1,
-            "price":request.query.amount,
-            "currency":request.query.currencyCode,
-            "image_url":"https://techolopia.com/wp-content/uploads/2020/07/Logo.png"
-          }
-        ]
-      }
-    }
-  }
-  action = null;
-  callSendAPI(s, msg, action, "first")
-  }
-  // Sending the success page for IOS and Desktop users, and send website main page if refreshed or accessed from outside. 
-  if(request.headers['user-agent'] && request.headers['user-agent'].includes("FBAN/MessengerLiteForiOS")){
-    response.render("./donate/success_ios",{p_info:request.query, fb_id:s});
-  } else if(request.headers.referer && (request.headers.referer.includes("https://payments.amazon.com/") || request.headers.referer.includes("https://payments-sandbox.amazon.com") || request.headers.referer.includes("https://apay-us.amazon.com/"))){
-    rc=`---Charity Station Recipt---\nReceipt Number: ${request.query.orderReferenceId}\nAmazon Email: ${request.session.username}\n`;
-    response.render("success",{p_info:request.query,email:request.session.username});
-    t = await getWebUser(request.session.username);
-    rc += `Name: ${t.Item.u_name.S}\n`
-    await updateWebUser(request.session.username,"donations",t.Item.donations.L.length, request.query.amount )
-    rc += `Amount: $${request.query.amount}\n`
-    await updateWebUser(request.session.username,"donation_time",t.Item.donations.L.length, `${Date().substring(0,34)}` )
-    rc += `Donation Time: ${Date().substring(0,34)}\n`
-    await updateWebUser(request.session.username,"receipt_number",t.Item.donations.L.length, request.query.orderReferenceId)
-    await updateWebUser(request.session.username,"donated_for",t.Item.donations.L.length, "general help" )
-    rc += `------------------------\nThanks for your help!!`
-    if (!fs.existsSync(`./rcs/${request.session.username}`)){
-      fs.mkdirSync(`./rcs/${request.session.username}`);
-    }
-    await fs.writeFile(`./rcs/${request.session.username}/${request.query.orderReferenceId}.txt`, rc, function(err) {
-      if (err) {
-                return console.log(err)
-                }
-                console.log("The file was saved!")
-        })
-  }  else {
-    response.render("index");
-}
-});
 
-// Canceled page for IOS and Desktop users.
-app.get(`/canceled`, function(request, response) {
-  if(request.headers['user-agent'] && request.headers['user-agent'].includes("FBAN/MessengerLiteForiOS")){
-    response.render("./donate/canceled_ios");
-  } else if(request.headers.referer && (request.headers.referer.includes("https://payments.amazon.com/") || request.headers.referer.includes("https://payments-sandbox.amazon.com"))){
-    response.render("./donate/canceled");
-  } else {
-    response.render("index");
-  }
-});
-
-// Logout Page for the website.
-app.get(`/logout`, function(request, response) {
-  if (request.session.loggedin) {
-    request.session.destroy()
-    response.clearCookie('connect.sid')
-    response.render("logout");
-  } else {
-    response.render("login");
-  }
-  response.end();
-});
-
-// Login with Amazon Page for the website.
-app.get(`/a_login`, async function(request, response) {
-  if (request.session.loggedin) {
-    users = await getAllUsers();
-    response.render("a_login",{t:"none", m:"You are now logged in!", users:users, view:'none', dis:'none'});
-} else{
-    users = await getAllUsers();
-    sendData = [];
-    for (i = 0 ; i < users.length ; i++){
-      sendData[i] = users[i].email.S;
-    }
-    response.render("a_login",{t:"intial", m:"", users:users, view:'intial', dis:'full'});
-  }
-});
-
-// Display Map Page for the Charities Search Results.
-app.get('/map', async function(request, response) {
-  if (request.session.loggedin) {
-  response.render("show_map",{lo:request.query.longitude,la:request.query.latitude});
-} else{
-  response.render("login");
-}
-});
-
-// Production Donation Custom Widget Page.
-app.get(`/donate`, async function(request, response) {
-  if (request.session.loggedin) {
-  response.render("donate");
-  } else{
-    response.render("login");
-  }
-});
-
-// Search Charities Page.
-app.get(`/search_charity`, async function(request, response) {
-  if (request.session.loggedin) {
-  response.render("search_charity");
-  } else{
-    response.render("login");
-  }
-});
-
-app.get(`/sandbox`, async function(request, response) {
-  if (request.session.loggedin) {
-  response.render("sand_box");
-} else{
-  response.render("login");
-}
-});
-
-app.get(`/profile`, async function(request, response) {
-  if (request.session.loggedin) {
-    userData = await getWebUser(request.session.username)
-    response.render("profile",{name: userData.Item.u_name.S ,donat: userData.Item.donated_for.L,donat2: userData.Item.donation_time.L, donat3: userData.Item.receipt_number.L, donat4: userData.Item.donations.L});
-  } else{
-    response.render("login");
-  }});
-
-
-app.get(`/events`, async function(request, response) {
-  if (request.session.loggedin) {
-    eve = await getAllEvents();
-    if(request.session.username === "test@dummy.fun"){
-      response.render("events",{dis:"full",data:eve});
-    } else{
-      response.render("events",{dis:"none",data:eve});
-    }
-  } else{
-    response.render("login");
-  }});
-
-  app.get(`/add_event`, async function(request, response) {
-    if (request.session.loggedin) {
-      if(request.session.username === "test@dummy.fun"){
-        response.render("add_event");
-      } else{
-        response.send("Why are you trying to access from here??");
-      }
-    } else{
-      response.render("login");
-    }});
-
-
-app.post(`/add_event`, async function(request, response) {
-  if (request.session.loggedin && request.session.username === "test@dummy.fun") {
-    await addEvent(request.body.name, request.body.category, request.body.location, request.body.dates, request.body.info, request.body.image);
-    response.redirect(`/event?page=${request.body.name}`)
-    emails = await getAllWebEmails();
-    for(i = 0 ; i < emails.length ; ++i){
-      text ="";
-      text += `Hi ${emails[i].u_name.S},\n\nThe following event just added! Please visit the link and share with your friends.\n\nEvent Name: ${request.body.name}\nEvent Link: ${process.env.URL}event?page=${request.body.name}\n\nThank you,\nCharity Station`
-      sendEmail.sendNotification(emails[i].email.S,`New Event (${request.body.name}) is here!!`,text)
-    }} else {
-      response.render("index");
-    }
-});
-
-app.get(`/event`, async function(request, response) {
-  d = await getEvents(request.query.page);
-  response.render('event',{name:d.Item.event_name.S, category:d.Item.event_category.S, location:d.Item.event_location.S, dates:d.Item.event_dates.S, info:d.Item.event_info.S, link:d.Item.event_image.S})
-});
-
-app.get(`/fundraisings`, async function(request, response) {
-  if (request.session.loggedin) {
-    response.render("fundraisings");
-  } else{
-    response.render("login");
-  }
-});
-
-app.post(`/search_charity`, async function(request, response) {
-  dat = await getCharity(request.body.name,request.body.city,request.body.state.toUpperCase());
-  response.render("search_charity_results", { model: dat.data });
-
-});
-
-app.post(`/auth`, async function(request, response) {
-  pass = md5(request.body.password);
-  email = request.body.username.toLowerCase();
-t = await Auth(email, pass);
-if(t == true){
-  request.session.loggedin = true;
-  request.session.username = request.body.username;
-  response.render("log")
-} else {
-  response.render("wrong_password")
-}
-});
-
-app.get('/download', async function(request, response){
-  response.download(`./rcs/${request.session.username}/${request.query.no}.txt`, `${request.query.no}.txt`);
-});
-
-app.post(`/a_login`, async function(request, response) {
-  if(request.body.password && request.body.email && request.body.email.length > 1){
-email = request.body.email.toLowerCase();
-password = md5(request.body.password);
-request.session.loggedin = true;
-request.session.username = email;
-response.render("confirm",{name:request.body.name});
-
-if (request.body.postalCode === "" || request.body.postalCode ==='undefined'){
-  p_code = "NY 10009"
-} else{
-  p_code = request.body.postalCode;
-}
-
-geo_coder.geocode(p_code)
-.then((res)=> {
-  area = res[0].formattedAddress.substring(2);
-  // Update the data in the database
-  createWebUser(email,password,request.body.name,area);
-});
-  } 
-else if(request.body.name && request.body.email ){
-  users = await getAllUsers();
-  request.session.loggedin = true;
-request.session.username = request.body.email;
-  response.render("a_login",{t:"none", m:"You are now logged in!", users:users, view:'none', dis:'none'});
-}else{
-  response.render("a_login",{t:"none", m:"You are not logged in with the sandBox Account!", users:users, view:'none', dis:'none'});
-}
-});
-
-
-app.post(`/s_login`, async function(request, response) {
-  if(request.body.password && request.body.email && request.body.email.length > 1){
-email = request.body.email;
-password = md5(request.body.password);
-request.session.loggedin = true;
-request.session.username = email;
-response.render("confirm",{name:request.body.name});
-
-if (request.body.postalCode === "" || request.body.postalCode ==='undefined'){
-  p_code = "NY 10009"
-} else{
-  p_code = request.body.postalCode;
-}
-
-geo_coder.geocode(p_code)
-.then((res)=> {
-  area = res[0].formattedAddress.substring(2);
-  // Update the data in the database
-  createWebUser(email,password,request.body.name,area);
-});
-  } 
-else if(request.body.name && request.body.email ){
-  users = await getAllUsers();
-  request.session.loggedin = true;
-  request.session.username = request.body.email;
-  response.render("s_login",{t:"none", m:"You are now logged in!", users:users, view:'none', dis:'none'});
-}else{
-  response.render("s_login",{t:"none", m:"You are not logged in with your Amazon Account!", users:users, view:'intial', dis:'none'});
-}
-});
-
-app.get("/fund", (req, res) => {
-  res.render("start_Fund", { name: req.query.name });
-});
-
-app.get("/s_login", async (request, response) => {
-  if (request.session.loggedin) {
-    users = await getAllUsers();
-    response.render("s_login",{t:"none", m:"You are now logged in!", users:users, view:'none', dis:'none'});
-} else{
-    users = await getAllUsers();
-    sendData = [];
-    for (i = 0 ; i < users.length ; i++){
-      sendData[i] = users[i].email.S;
-    }
-    response.render("s_login",{t:"intial", m:"", users:users, view:'intial', dis:'full'});
-  }});
-
-
-// This page loads when the user click Amazon Login from Messenger and he is using Desktop.
-app.get(`/desktop`, async function(request, response) {
-  t = await getAllKey();
-  l = false;
-  for(i = 0 ; i < t.length ; ++i){
-    if(t[i].PSID.S === request.query.s)
-    l = true;
-  }
-  // If Messenger user, pass resources to send the new Desktop Login Link to the user.
-  if(l == true){
-  response.render("desktop",{call:callSendAPI, r:request});
-  } else {
-    response.render("index");
-  }
-});
 
 // The Desktop Users will use this page to login.
 app.get(`/desk_index`,async function(request, response) {

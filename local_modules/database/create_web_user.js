@@ -1,3 +1,4 @@
+// Function to create a Web user //
 const _ = require("lodash");
 const AWS = require("aws-sdk");
 

@@ -1,4 +1,6 @@
 <%- include("header") -%>
+<!--Page used for Sandbox Login-->
+<title>Charity Station | Login With Amazon (Sandbox)</title>
 <center>
 <br>
 <br>
@@ -86,7 +88,7 @@ function showLoginButton() {
             <%++u%>
             <% }; %>
             if (test.includes(`${response.profile.PrimaryEmail}`)){
-            document.getElementById("p3").innerHTML = "You have an account with Charity Station.";
+            document.getElementById("p3").innerHTML = "You have an account with Charity Station.<br>You are not logged in.";
         } else{
             document.getElementById("log").style.display = 'none';
         }
@@ -127,7 +129,7 @@ authRequest = amazon.Login.authorize(options, function(response) {
             <%++u%>
             <% }; %>
             if (test.includes(`${response.profile.PrimaryEmail}`)){
-            document.getElementById("p3").innerHTML = "You have an account with Charity Station.";
+            document.getElementById("p3").innerHTML = "You have an account with Charity Station.<br>You are not logged in.";
         } else{
             document.getElementById("log").style.display = 'none';
         }

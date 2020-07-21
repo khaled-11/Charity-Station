@@ -1,4 +1,6 @@
+<!--Page used list all Events-->
 <%- include("header") -%>
+<title>Charity Station | Events</title>
 <center>
 <br>
 <br>
@@ -9,7 +11,7 @@
 </div>
 </center>
 <br>
-<div class="table-sm">
+<div class="table-responsive-sm">
 <table class="table table-hover" id="tbl">
 <thead>
   <tr>
@@ -31,7 +33,7 @@
         <td><%= eve.event_info.S %></td>
   
         <td class="d-print-none" align="center">
-          <a class="btn btn-sm btn-info" href="/event?page=<%= eve.event_name.S %>">Event Page</a>
+          <a class="btn btn-sm btn-info" href="/event?name=<%= eve.event_name.S %>">Event Page</a>
         </td>
 
         </tr>

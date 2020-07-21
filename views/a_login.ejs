@@ -1,4 +1,6 @@
+<!--Page used for Amazon Login in Desktop-->
 <%- include("header") -%>
+<title>Charity Station | Amazon Login</title>
 <center>
 <br>
 <br>
@@ -108,7 +110,7 @@ function showLoginButton() {
             <% }; %>
             if (test.includes(`${response.profile.PrimaryEmail}`)){
             document.getElementById("reg").style.display = 'none';
-            document.getElementById("p3").innerHTML = "You have an account with Charity Station.";
+            document.getElementById("p3").innerHTML = "You have an account with Charity Station.<br>You are not logged in.";
         } else{
             document.getElementById("p3").innerHTML = "Please create an account below to continue.";
             document.getElementById("reg").style.display = 'full';
@@ -155,7 +157,7 @@ authRequest = amazon.Login.authorize(options, function(response) {
             <% }; %>
             if (test.includes(`${response.profile.PrimaryEmail}`)){
             document.getElementById("reg").style.display = 'none';
-            document.getElementById("p3").innerHTML = "You have an account with Charity Station.";
+            document.getElementById("p3").innerHTML = "You have an account with Charity Station.<br>You are not logged in.";
         } else{
             document.getElementById("p3").innerHTML = "Please create an account below to continue.";
             document.getElementById("reg").style.display = 'full';

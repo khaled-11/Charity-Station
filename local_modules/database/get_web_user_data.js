@@ -1,3 +1,4 @@
+// Function to get Website specific user data //
 const _ = require("lodash");
 const AWS = require("aws-sdk");
 

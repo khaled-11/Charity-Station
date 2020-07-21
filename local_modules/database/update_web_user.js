@@ -1,3 +1,4 @@
+// Function to update the user account with transaction info //
 const _ = require("lodash");
 const AWS = require("aws-sdk");
 

@@ -1,5 +1,5 @@
+/// Function to send Email Notifications to the users ///
 "use strict";
-
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
@@ -16,22 +16,19 @@ function sendNotification(recipient_email, subject, body) {
           pass:process.env.E_PASS
         },
     tls: {
-        // do not fail on invalid certs
-        rejectUnauthorized: false,
+    rejectUnauthorized: false,
     ciphers:'SSLv3'
       },
     requireTLS : false,
     debug: false,
     logger: true
-});
-
+    });
 
     let eConfirm= {
         from: eAddress, 
         to: recipient_email,
         subject: subject,
         text: body,
- 
     }
 
     transporter.sendMail(eConfirm, function(err){
@@ -45,6 +42,5 @@ function sendNotification(recipient_email, subject, body) {
         }
     });
 }
-
 
 module.exports.sendNotification = sendNotification;

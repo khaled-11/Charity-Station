@@ -1,5 +1,10 @@
+<!--Page used to send the transaction confirmation-->
 <%- include("header") -%>
+<title>Charity Station | Successful Payment</title>
 <center>
+<script>
+    document.cookie = "donation_for=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+</script>
 <br>
 <br>
 <h2>You successfuly sent the donation!</h2>
@@ -8,8 +13,11 @@
 <p>Status: <%=p_info.resultCode%></p>
 <p>Order ID: <%=p_info.orderReferenceId%></p>
 <p>Amount: $<%=p_info.amount%></p>
+<p>Donation For: <%=reason%></p>
 <p>Action: <%=p_info.paymentAction%></p>
-<p>email: <%=email%></p>
+<p>Email: <%=email%></p>
+<p>Name: <%=uName%></p>
+
 <br>
 <P>You can find your receipts in "My Account" tab at any time.</P>
 </center>

@@ -1,3 +1,4 @@
+// Function to check the user login credentials //
 const _ = require("lodash");
 const AWS = require("aws-sdk");
 AWS.config.update({region: 'us-east-1'});

@@ -1,8 +1,0 @@
----Charity Station Recipt---
-Receipt Number: S01-4176650-5617102
-Amazon Email: test@dummy.fun
-Name: test account
-Amount: $5.00
-Donation Time: Sun Jul 19 2020 21:02:11 GMT-0400 
-------------------------
-Thanks for your help!!

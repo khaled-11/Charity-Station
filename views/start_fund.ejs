@@ -1,9 +1,51 @@
+<!--Page used to start Fundraising-->
 <%- include("header") -%>
+<title>Charity Station | Start Fundraising</title>
 <center>
 <br>
 <br>
+<h1><%= exists %></h1>
+<br>
 <h2>Start Fundraising for:</h2>
 <br>
-<p><%=name%></p>
+<p>Orgnization Name: <%=name%>
+<br>Category: <%=cat%>
+<br>EIN: <%=ein%>
+<br>Address: <%=address%></p>
+<p>After you create the Fundraising, we will send a notification to all of our subscribed users.
+<br>You can donate after you create the Fundraising with your linked Amazon Account.</p>
+
+<div class="register-form">
+    <form action="fund" method="POST" style="display:full">
+        <input type="text" required = "true" name="org_name" value="<%=name%>" style="display:none">
+        <input type="text" required = "true" name="cat" value="<%=cat%>" style="display:none">
+        <input type="text" required = "true" name="ein" value="<%=ein%>" style="display:none">
+        <input type="text" required = "true" name="address" value="<%=address%>" style="display:none">
+
+        <br>    
+        Fundraising Name:
+        <br>    
+        <input type="text" required = "true" name="fund_name" style="display:full">
+        <br>
+        <br>
+        Fundraising Tagline:
+        <br>
+        <input type="text" required = "true" name="tagline" style="display:full">
+        <br>
+        <br>
+        Fundraising Limit:
+        <br>
+        <input type="number" min="100" step="5" required = "true" name="limit" style="display:full">
+        <br>
+        <br>
+        Fundraising Image:
+        <br>
+        <input type="text" required = "true" name="image" style="display:full">
+        <br>
+        <br>
+        <input type="submit" value="Add Fundraising">
+    </form>
+</div>
 </center>
 
+<%- include("footer") -%>
