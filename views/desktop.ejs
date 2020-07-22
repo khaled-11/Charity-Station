@@ -1,0 +1,52 @@
+<!--Page used to Redirect Messenger Desktop users-->
+<script type='text/javascript'>
+
+
+    (function (d, s, id) {
+       var js, fjs = d.getElementsByTagName(s)[0];
+       if (d.getElementById(id)) { return; }
+       js = d.createElement(s); js.id = id;
+       js.src = "//connect.facebook.net/en_US/messenger.Extensions.js";
+       fjs.parentNode.insertBefore(js, fjs);
+   }(document, 'script', 'Messenger'));
+   
+   window.extAsyncInit = function () {
+
+    <%  response = { 
+    "attachment":{
+      "type":"template",
+      "payload":{
+        "template_type":"button",
+        "text":"We have two different view for the Messenger users.\nSeems like you are using Desktop, please use the links below instead to login.\nFor Sandbox login, use Email: test@dummy.fun & Password: 123456",
+        "buttons":[
+          {
+            "type":"web_url",
+            "url":`${process.env.URL}desk_index?s=${r.query.s}`,
+            "title":"Amazon Desktop Login"
+            }, {
+            "type":"web_url",
+            "url":`${process.env.URL}s_login`,
+            "title":"Sandbox Login"
+            }
+        ]
+      }
+    }
+    }%>
+    <%if(r.query.s){call(r.query.s, response,null,"first")}%>
+
+
+
+         sleep(1000).then(() => {   
+
+     MessengerExtensions.requestCloseBrowser(function success() {
+        }, function error(err, message) {
+          throw(err)
+        }); 
+    });
+}
+
+const sleep = (milliseconds) => {
+   return new Promise(resolve => setTimeout(resolve, milliseconds))
+}
+</script>
+

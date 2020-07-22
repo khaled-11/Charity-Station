@@ -10,6 +10,8 @@ getCharity = require("./local_modules/other/get_charity"),
 createUsersTable = require("./local_modules/database/create_users_table"),
 createDataTable = require("./local_modules/database/create_data_table"),
 createWebTable = require("./local_modules/database/create_web_table"),
+OTN = require ("./local_modules/messenger/OTN"),
+updateCheck = require("./local_modules/database/updateCheck"),
 updateWebUser = require("./local_modules/database/update_web_user"),
 updateFundDonors = require("./local_modules/database/update_fund_donors"),
 updateFundLimit = require("./local_modules/database/update_fund_limit"),
@@ -23,24 +25,25 @@ getEvents = require("./local_modules/database/get_events"),
 getAllEvents = require("./local_modules/database/get_all_events"),
 addFund = require("./local_modules/database/add_fund"),
 getFunds = require("./local_modules/database/get_funds"),
-getAllFunds = require("./local_modules/database/get_all_funds");
+getAllFunds = require("./local_modules/database/get_all_funds"),
 
-// updateState = require("./local_modules/database/update_state"),
-// exists = require("./local_modules/database/check_data"),
-// getAllKey = require("./local_modules/database/get_all_keys"),
+updateState = require("./local_modules/database/update_state"),
+exists = require("./local_modules/database/check_data"),
+getAllKey = require("./local_modules/database/get_all_keys"),
 
-// mSetup = require("./local_modules/messenger/m_setUp"),
-// whiteList = require("./local_modules/messenger/white_list"),
-// callSendAPI = require("./local_modules/messenger/callSendAPI"),
-// inboxLog = require("./local_modules/messenger/inbox_log"),
-// botLog = require("./local_modules/messenger/bot_log"),
-// firstMessages = require("./local_modules/messenger/first_handle_messages"),
-// firstPostbacks = require("./local_modules/messenger/first_handle_postbacks"),
-// takeControl = require("./local_modules/messenger/take_thread");
+//mSetup = require("./local_modules/messenger/m_setUp"),
+//whiteList = require("./local_modules/messenger/white_list"),
+callSendAPI = require("./local_modules/messenger/callSendAPI"),
+inboxLog = require("./local_modules/messenger/inbox_log"),
+botLog = require("./local_modules/messenger/bot_log"),
+firstMessages = require("./local_modules/messenger/first_handle_messages"),
+firstPostbacks = require("./local_modules/messenger/first_handle_postbacks"),
+takeControl = require("./local_modules/messenger/take_thread");
 
-// Functions to Whitelist the domain and update the Messenger Webhook callback URL.
-// whiteList();
-// mSetup();
+
+//Functions to Whitelist the domain and update the Messenger Webhook callback URL.
+//whiteList();
+//mSetup();
 
 // Function to create the Database Tables if does not exist.
 // Data Table for Website and Messenger.
@@ -49,7 +52,7 @@ createDataTable();
 createWebTable();
 // Table for Messenger Users
 createUsersTable();
-// Adding Dummy Fundraising for the AppS
+//Adding Dummy Fundraising for the App       +
 addFund("General Donation", "Testing Fundraising for the Platform", "Khaled", "10000", "https://charity-station.com/Logo.png", "Charity Station", "Software", "XX", "New York, NY");
 
 // Creating the App object in express.
@@ -71,12 +74,9 @@ app.set("views", path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, "public")));
 app.set("view engine", "ejs");
 
-
-
-
 ///// Production Amazon Pay page with Custom Donation Widget /////
 app.get(`/donate`, async function(request, response) {
-  if (request.session.loggedin) {
+  if(request.headers.referer){
     nm = "";
     for ( i = 0 ; i < request.query.name.length ; ++i){
       if(request.query.name[i] != ' ' && request.query.name[i] != `'`){
@@ -89,16 +89,15 @@ app.get(`/donate`, async function(request, response) {
         nm +="%20";
       }
     }
-    console.log(nm)
-    response.render("donate",{name:nm});
+    response.render("donate",{name:nm,s_id:request.query.s});
   } else{
-    response.render("login",{msg:"You are not logged in."});
+    response.render("donate",{name:nm,s_id: `XXX`});
   }
 });
 
 ///// Amazon SandBox Pay page with Custom Donation Widget /////
 app.get(`/sandbox`, async function(request, response) {
-  if (request.session.loggedin) {
+  if(request.headers.referer){
     nm = "";
     for ( i = 0 ; i < request.query.name.length ; ++i){
       if(request.query.name[i] != ' ' && request.query.name[i] != `'`){
@@ -111,11 +110,11 @@ app.get(`/sandbox`, async function(request, response) {
         nm +="%20";
       }
     }
-    console.log(nm)
-    response.render("sand_box",{name:nm});
+    response.render("sand_box",{name:nm,s_id:request.query.s});
   } else{
-    response.render("login",{msg:"You are not logged in."});
+    response.render("sand_box",{name:nm,s_id: `XXX`});
   }
+
 });
 
 ///// Page to Display All Current Events. This page is public. /////
@@ -131,7 +130,7 @@ app.get(`/events`, async function(request, response) {
 
 ///// Page used to ask for adding event information /////
 app.get(`/add_event`, async function(request, response) {
-  if (request.session.loggedin) {
+  if (request.session.loggedin || request.headers.referer) {
     if(request.session.username === "info@techolopia.solutions"){
       response.render("add_event",{exists:null});
     } else{
@@ -160,6 +159,7 @@ if (request.session.loggedin && request.session.username === "info@techolopia.so
   }
   response.redirect(`/event?name=${pName}`)
   emails = await getAllWebEmails();
+  OTN(`Hi ${emails[i].u_name.S},\n\nThe following Event was just added! Please visit the link and share with your friends.\n\nEvent Name: ${request.body.name}\nEvent Link: ${process.env.URL}event?page=${pName}\n\nThank you,\nCharity Station`)
   for(i = 0 ; i < emails.length ; ++i){
     text ="";
     text += `Hi ${emails[i].u_name.S},\n\nThe following Event was just added! Please visit the link and share with your friends.\n\nEvent Name: ${request.body.name}\nEvent Link: ${process.env.URL}event?page=${pName}\n\nThank you,\nCharity Station`
@@ -184,7 +184,7 @@ response.render("fundraisings",{data:eve});
 
 ///// Page used to ask for adding Fundraising information /////
 app.get("/fund", (req, res) => {
-if (req.session.loggedin) {
+if (req.session.loggedin || (req.headers.referer && (req.headers.referer.includes("https://l.messenger.com/") || req.headers.referer.includes("https://l.facebook.com/")))) {
   res.render("start_fund", { exists:null, name: req.query.name, ein:req.query.ein, cat:req.query.cat, address:req.query.address });
 } else{
   res.render("login", {msg:"You are not logged in."});
@@ -210,10 +210,10 @@ if (request.session.loggedin) {
   }
   response.redirect(`/fund_display?page=${fName}`)
   emails = await getAllWebEmails();
+  OTN()
   for(i = 0 ; i < emails.length ; ++i){
-    text ="";
+    text =`Hi ${emails[i].u_name.S},\n\nThe following Fundraising was just added! Please visit the link and share with your friends.\n\nFundraising Name: ${request.body.fund_name}\nEvent Link: ${process.env.URL}fund_display?page=${fName}\n\nThank you,\nCharity Station`;
     text += `Hi ${emails[i].u_name.S},\n\nThe following Fundraising was just added! Please visit the link and share with your friends.\n\nFundraising Name: ${request.body.fund_name}\nEvent Link: ${process.env.URL}fund_display?page=${fName}\n\nThank you,\nCharity Station`
-    console.log(emails[i].u_name.S, text);
     sendEmail.sendNotification(emails[i].email.S,`New Fundraising (${request.body.fund_name}) is here!!`,text)
   }
   }} else{
@@ -288,11 +288,7 @@ app.post(`/a_login`, async function(request, response) {
 
 ///// Page used to display Satelite Map for any Charity Found in Search /////
 app.get('/map', async function(request, response) {
-  if (request.session.loggedin) {
   response.render("show_map",{lo:request.query.longitude,la:request.query.latitude});
-} else{
-  response.render("login",{msg:"You are not logged in."});
-}
 });
 
 ///// Page used to search for Charities in the USA /////
@@ -335,7 +331,6 @@ app.get(`/auth`, async function(request, response) {
 
 ///// Page used to Login the user using the user credentials /////
 app.post(`/auth`, async function(request, response) {
-  console.log(request.headers)
   pass = md5(request.body.password);
   email = request.body.username.toLowerCase();
 t = await Auth(email, pass);
@@ -358,6 +353,12 @@ app.get("/s_login", async (request, response) => {
   if (request.session.loggedin) {
     users = await getAllUsers();
     response.render("s_login",{t:"none", m:"You are now logged in!", users:users, view:'none', dis:'none'});
+  } else if(request.session.loggedin && request.headers.referer && (request.headers.referer.includes("https://payments.amazon.com/") || request.headers.referer.includes("https://payments-sandbox.amazon.com") || request.headers.referer.includes("https://apay-us.amazon.com/") || request.headers.referer.includes("https://l.messenger.com/") || request.headers.referer.includes("https://l.facebook.com/"))){
+    users = await getAllUsers();
+  response.render("sandbox_messenger",{t:"none", m:"You are now logged in!", users:users, view:'none', dis:'none'});
+} else if(!request.session.loggedin && request.headers.referer && (request.headers.referer.includes("https://payments.amazon.com/") || request.headers.referer.includes("https://payments-sandbox.amazon.com") || request.headers.referer.includes("https://apay-us.amazon.com/") || request.headers.referer.includes("https://l.messenger.com/") || request.headers.referer.includes("https://l.facebook.com/"))){
+  users = await getAllUsers();
+response.render("sandbox_messenger",{t:"intial", m:"", users:users, view:'intial', dis:'full'});
 } else{
     users = await getAllUsers();
     sendData = [];
@@ -404,12 +405,14 @@ app.post(`/s_login`, async function(request, response) {
 app.get(`/success`, async function(request, response) {
   // Get the cookie saved in the browser.
   ck = request.headers.cookie;
-  s = "";
+  
+  if(request.headers.referer){
+    sn = "";
   // Loop to read the Messenger PSID from the cookie
   for(i = 0 ; i < ck.length ; ++i){
     if (ck[i] == 's' && ck[i + 1] =='_' && ck[i + 2] =='i'&& ck[i + 3] =='d' && ck[i + 4] =='_'){
       for(j = i+8 ; j < ck.length ; ++j){
-        s += ck[j];
+        sn += ck[j];
         if(ck[j+1] == ';'){
         j = ck.length;
         i = ck.length;
@@ -420,16 +423,18 @@ app.get(`/success`, async function(request, response) {
   }
   // This Messenger Receipt Template will be sent Once.
   // If the user refreshed the page, the cookie will be deleted.
-  if(s !== ""){
+  if(!sn.includes("XXX")){
+
+    check = await updateCheck(sn);  
   msg = {  
     "attachment":{
       "type":"template",
       "payload":{
         "template_type":"receipt",
-        "recipient_name":"Lenda Ott",
+        "recipient_name":`${check.Item.first_name.S}`,
         "order_number":request.query.orderReferenceId,
         "currency":"USD",
-        "payment_method":"Amazon Account: len...@gm...",        
+        "payment_method":`${check.Item.email.S}`,        
         "order_url":"https://49b40fcaffa9.ngrok.io/",         
         "summary":{
           "subtotal":request.query.amount,
@@ -449,13 +454,21 @@ app.get(`/success`, async function(request, response) {
     }
   }
   action = null;
-  callSendAPI(s, msg, action, "first")
-  }
-  // Sending the success page for IOS and Desktop users, and send website main page if refreshed or accessed from outside. 
-  if(request.headers['user-agent'] && request.headers['user-agent'].includes("FBAN/MessengerLiteForiOS")){
-    response.render("./donate/success_ios",{p_info:request.query, fb_id:s});
-  } else if(request.headers.referer && (request.headers.referer.includes("https://payments.amazon.com/") || request.headers.referer.includes("https://payments-sandbox.amazon.com") || request.headers.referer.includes("https://apay-us.amazon.com/"))){
-    s = "";
+  callSendAPI(sn, msg, action, "first")
+  await sleep(2000);
+  msg = {
+    "text": "Thanks for the donation.\nThis is your receipt.", 
+    "quick_replies":[
+      {
+        "content_type":"text",
+        "title":"Go Back",
+        "payload":`MENU`
+      }]
+    }
+    action = null;
+    callSendAPI(sn, msg, action, "first")
+  }  
+  s = "";
     // Loop to read the Messenger PSID from the cookie
     for(i = 0 ; i < ck.length ; ++i){
       if (ck[i] == 'd' && ck[i + 1] =='o' && ck[i + 2] =='n'&& ck[i + 3] =='a' && ck[i + 4] =='t' && ck[i + 5] =='i' && ck[i + 6] =='o'){
@@ -482,6 +495,7 @@ app.get(`/success`, async function(request, response) {
       }
     }
 
+    if(request.session.username){
     donorData = await getWebUser(request.session.username);
     donorName = donorData.Item.u_name.S;
 
@@ -510,20 +524,18 @@ app.get(`/success`, async function(request, response) {
                 }
                 console.log("The file was saved!")
         })
-  }  else {
+  } else{
+    response.render("success",{reason:s2, uName: `${check.Item.first_name.S} ${check.Item.last_name.S}`, p_info:request.query,email:`${check.Item.email.S}`});
+  }}  else {
     response.render("index");
 }
 });
 
 // Canceled page for IOS and Desktop users.
 app.get(`/canceled`, function(request, response) {
-  if(request.headers['user-agent'] && request.headers['user-agent'].includes("FBAN/MessengerLiteForiOS")){
-    response.render("./donate/canceled_ios");
-  } else if(request.headers.referer && (request.headers.referer.includes("https://payments.amazon.com/") || request.headers.referer.includes("https://payments-sandbox.amazon.com"))){
-    response.render("./donate/canceled");
-  } else {
+
     response.render("canceled");
-  }
+  
 });
 
 // This page loads when the user click Amazon Login from Messenger and he is using Desktop.
@@ -614,13 +626,28 @@ app.get(`/desk_index`,async function(request, response) {
     p_a = "Please click on the button below to link you Amazon account."
   }
   // Check for users coming from Messenger.
-  if(request.headers.referer && (request.headers.referer.includes("https://l.messenger.com/") || request.headers.referer.includes("https://l.facebook.com/") || request.headers.referer.includes("https://payments.amazon.com/"))){
-    response.render("desk_index",{r_s:request.query.s, t:f_s, p:p_a});
+  if(request.session.loggedin && request.headers.referer && (request.headers.referer.includes("https://l.messenger.com/") || request.headers.referer.includes("https://l.facebook.com/") || request.headers.referer.includes("https://payments.amazon.com/"))){
+    response.render("desk_index",{msg:"You are logged in!",view:"none",r_s:request.query.s, t:f_s, p:p_a});
+  } else if(!request.session.loggedin &&request.headers.referer && (request.headers.referer.includes("https://l.messenger.com/") || request.headers.referer.includes("https://l.facebook.com/") || request.headers.referer.includes("https://payments.amazon.com/"))){
+    response.render("desk_index",{msg:"You are not logged in!",view:"full",r_s:request.query.s, t:f_s, p:p_a});
   } else {
-    // If the user is requesting the page from somewhere else.
     response.render("index")
   }
 });
+
+
+// Post Amazon Data for Desktop Messenger users and save it in the database.
+app.post('/lg_desk', function (req, res) {
+  // Get the Messenger Sender_PSID from the Request Query.
+  if(req.body.name && req.body.email ){
+  req.session.loggedin = true;
+  req.session.username = req.body.email;
+  res.render("desk_index",{msg:"You are now logged in with our Website!",view:"none",r_s:req.query.s, t:f_s, p:p_a});
+}else{
+  res.render("desk_index",{msg:"You are not logged in with Amazon Account!",view:"none",r_s:req.query.s, t:f_s, p:p_a});
+  }
+});
+
 
 // Post Amazon Data for Desktop Messenger users and save it in the database.
 app.post('/desk_index', function (req, res) {
@@ -651,196 +678,125 @@ app.post('/desk_index', function (req, res) {
   });
 }});
 
-// Rendering the donation pages.
-am = ["5","10","20","50","100","250","500","1000"]
-app.get(`/donate/${am[0]}`, function(request, response) {
-  if((request.headers.referer && (request.headers.referer.includes("https://l.messenger.com/") || request.headers.referer.includes("https://l.facebook.com/") || request.headers.referer.includes("https://payments-sandbox.amazon.com"))) || (request.headers['user-agent'] && request.headers['user-agent'].includes("FBAN/MessengerLiteForiOS"))){
-    response.render(`./donate/${am[0]}`,{s_id:request.query.s});
-  } else{
-    response.render("index");
-  }
-});
 
-app.get(`/donate/${am[1]}`, function(request, response) {
-  if((request.headers.referer && (request.headers.referer.includes("https://l.messenger.com/") || request.headers.referer.includes("https://l.facebook.com/") || request.headers.referer.includes("https://payments-sandbox.amazon.com"))) || (request.headers['user-agent'] && request.headers['user-agent'].includes("FBAN/MessengerLiteForiOS"))){
-    response.render(`./donate/${am[1]}`,{s_id:request.query.s});
-  } else{
-    response.render("index");
-}
-});
-
-app.get(`/donate/${am[2]}`, function(request, response) {
-  if((request.headers.referer && (request.headers.referer.includes("https://l.messenger.com/") || request.headers.referer.includes("https://l.facebook.com/") || request.headers.referer.includes("https://payments-sandbox.amazon.com"))) || (request.headers['user-agent'] && request.headers['user-agent'].includes("FBAN/MessengerLiteForiOS"))){
-  response.render(`./donate/${am[2]}`,{s_id:request.query.s});
-} else{
-  response.render("index");
-}
-});
-
-app.get(`/donate/${am[3]}`, function(request, response) {
-  if((request.headers.referer && (request.headers.referer.includes("https://l.messenger.com/") || request.headers.referer.includes("https://l.facebook.com/") || request.headers.referer.includes("https://payments-sandbox.amazon.com"))) || (request.headers['user-agent'] && request.headers['user-agent'].includes("FBAN/MessengerLiteForiOS"))){
-    response.render(`./donate/${am[3]}`,{s_id:request.query.s});
-} else{
-  response.render("index");
-}
-});
-
-app.get(`/donate/${am[4]}`, function(request, response) {
-  if((request.headers.referer && (request.headers.referer.includes("https://l.messenger.com/") || request.headers.referer.includes("https://l.facebook.com/") || request.headers.referer.includes("https://payments-sandbox.amazon.com"))) || (request.headers['user-agent'] && request.headers['user-agent'].includes("FBAN/MessengerLiteForiOS"))){
-    response.render(`./donate/${am[4]}`,{s_id:request.query.s});
-  } else{
-    response.render("index");
-}
-});
-
-app.get(`/donate/${am[5]}`, function(request, response) {
-  if((request.headers.referer && (request.headers.referer.includes("https://l.messenger.com/") || request.headers.referer.includes("https://l.facebook.com/") || request.headers.referer.includes("https://payments-sandbox.amazon.com"))) || (request.headers['user-agent'] && request.headers['user-agent'].includes("FBAN/MessengerLiteForiOS"))){
-  response.render(`./donate/${am[5]}`,{s_id:request.query.s});
-} else{
-  response.render("index");
-}
-});
-
-app.get(`/donate/${am[6]}`, function(request, response) {
-  if((request.headers.referer && (request.headers.referer.includes("https://l.messenger.com/") || request.headers.referer.includes("https://l.facebook.com/") || request.headers.referer.includes("https://payments-sandbox.amazon.com"))) || (request.headers['user-agent'] && request.headers['user-agent'].includes("FBAN/MessengerLiteForiOS"))){
-  response.render(`./donate/${am[6]}`,{s_id:request.query.s});
-} else{
-  response.render("index");
-}
-});
-
-app.get(`/donate/${am[7]}`, function(request, response) {
-  if((request.headers.referer && (request.headers.referer.includes("https://l.messenger.com/") || request.headers.referer.includes("https://l.facebook.com/") || request.headers.referer.includes("https://payments-sandbox.amazon.com"))) || (request.headers['user-agent'] && request.headers['user-agent'].includes("FBAN/MessengerLiteForiOS"))){
-  response.render(`./donate/${am[7]}`,{s_id:request.query.s});
-} else{
-  response.render("index");
-}
-});
-
-// This page loads when the user click Donate from Messenger and he is using Desktop.
-app.get(`/donate/desk`, async function(request, response) {
-  t = await getAllKey();
-  l = false;
-  for(i = 0 ; i < t.length ; ++i){
-    if(t[i].PSID.S === request.query.s)
-    l = true;
-  }
-  // If Messenger user, pass resources to send the new Donate Link to the user.
-  if(l == true){
-  response.render("./donate/desk",{call:callSendAPI, r:request});
-  } else {
-    response.render("index");
-  }
-});
-
-// Redirect Page for all users.
+// Redirect Page for any page.
 app.get(`/redirect`, function(request, response) {
   response.render("redirect",{link:request.query.lk});
 });
 
-// /////////////////////////////////////////////////////////////
-// /// Webhook Endpoint For the First Facebook Messenger App ///
-// /////////////////////////////////////////////////////////////
-// app.post('/webhook', (req, res) => {  
-//     let body = req.body;
-//     // Checks this is an event from a page subscription
-//     if (body.object === 'page') {
-//       // Iterates over each entry - there may be multiple if batched
-//       body.entry.forEach(function(entry) {
-//       // Gets the body of the webhook event
-//       if(entry.messaging){
-//         webhook_event = entry.messaging[0];
 
-//         // Get the sender PSID
-//         let sender_psid = webhook_event.sender.id;
-//         // Check if the event is Pass Thread Control and if the user is coming from the Inbox.
-//         // If so, will send the user to Handle Message Function in First Bot regardless the previous Bot.
-//         if(webhook_event.pass_thread_control && webhook_event.pass_thread_control.metadata){
-//           if (webhook_event.pass_thread_control.metadata.includes("from Page Inbox")){
-//             firstMessages(sender_psid, "BACK", app);
-//         }}
+
+
+
+/////////////////////////////////////////////////////////////
+/// Webhook Endpoint For the First Facebook Messenger App ///
+/////////////////////////////////////////////////////////////
+app.post('/webhook', (req, res) => {  
+    let body = req.body;
+    // Checks this is an event from a page subscription
+    if (body.object === 'page') {
+      // Iterates over each entry - there may be multiple if batched
+      body.entry.forEach(function(entry) {
+      // Gets the body of the webhook event
+      if(entry.messaging){
+        webhook_event = entry.messaging[0];
+
+        // Get the sender PSID
+        let sender_psid = webhook_event.sender.id;
+        // Check if the event is Pass Thread Control and if the user is coming from the Inbox.
+        // If so, will send the user to Handle Message Function in First Bot regardless the previous Bot.
+        if(webhook_event.pass_thread_control && webhook_event.pass_thread_control.metadata){
+          if (webhook_event.pass_thread_control.metadata.includes("from Page Inbox")){
+            firstMessages(sender_psid, "BACK", app);
+        }}
         
-//         // If OTN Approval, will update variables in the DB and trigger the First App to confirm.
-//         if (webhook_event.optin){
-//           payload = webhook_event.optin.payload;
-//           PSID = webhook_event.sender.id;
-//           userToken =  webhook_event.optin.one_time_notif_token;
-//           update = updateState(PSID, "Notification_token", `${userToken}`);
-//           firstMessages(sender_psid, "AGREED", app);
-//         }
-//         if(webhook_event.message && webhook_event.message.is_echo == true && webhook_event.message.text){
-//           botLog(webhook_event.recipient.id , webhook_event.message.text, "bot", "Message")
-//         }
-//         // Check if the event is a Message or Postback or Quick Replies.
-//         // Pass the event to handlePostBack function if Quick Reply or Postback.
-//         // Otherwise, pass the event to handleMessage function.
-//         if (sender_psid != process.env.PAGE_ID && webhook_event.message && !webhook_event.message.quick_reply) {
-//           botLog(webhook_event.sender.id , webhook_event.message.text, "user", "Message")
-//           firstMessages(sender_psid, webhook_event,app);  
-//         } else if (sender_psid != process.env.PAGE_ID && (webhook_event.postback || (webhook_event.message && webhook_event.message.quick_reply))) {
-//           if(webhook_event.postback && webhook_event.postback.payload && webhook_event.postback.payload !== "GET_STARTED"){
-//           botLog(webhook_event.sender.id , webhook_event.postback.title, "user", "Postback")
-//           }
-//           firstPostbacks(sender_psid, webhook_event,app);
-//         }
-//       } else {
-//         // If it is a standby event track and listen to the coversation by the secondary receivers.
-//         webhook_event = entry.standby[0]; 
-//         let sender_psid = webhook_event.sender.id;
-//         // The case which the message is sent from the page inbox.
-//         if (webhook_event.message && sender_psid == process.env.PAGE_ID){
-//           if (!webhook_event.message.app_id){
-//               inboxLog(webhook_event.recipient.id , webhook_event.message.text, "inbox")
-//               check_message = webhook_event.message.text;
-//               recipient_id = webhook_event.recipient.id;
-//               // It will be easier to send a like to move the user back to the Bot is the representative is using phone.
-//               if(!check_message){
-//                 console.log("customer service sent like");
-//                 takeControl(recipient_id);
-//               }
-//             }
-//         }
-//         // The case which the user is sending a message to any of the secondary Apps.
-//         if (webhook_event.message && webhook_event.message.text && sender_psid != process.env.PAGE_ID){
-//           inboxLog(sender_psid , webhook_event.message.text, "user")
-//           check_message = webhook_event.message.text;
-//           recipient_id = webhook_event.recipient.id;
-//           // If no customer service available, the user can send a text to go back to the main Bot.
-//           check_message = check_message.toLowerCase();
-//           if(check_message.includes("#back to bot") || (check_message.includes("#")) && check_message.includes("back")){
-//             inboxLog(sender_psid , check_message, "user")
-//             takeControl(sender_psid);
-//           }
-//         }}
-//       });
-//     // Returns a '200 OK' response to all requests
-//     res.status(200).send('EVENT_RECEIVED');
-//     } else {
-//       // Returns a '404 Not Found' if event is not from a page subscription
-//       res.sendStatus(404);
-//     }
-//   });
+        // If OTN Approval, will update variables in the DB and trigger the First App to confirm.
+        if (webhook_event.optin){
+          payload = webhook_event.optin.payload;
+          PSID = webhook_event.sender.id;
+          userToken =  webhook_event.optin.one_time_notif_token;
+          update = updateState(PSID, "Notification_token", `${userToken}`);
+          firstMessages(sender_psid, "AGREED", app);
+        }
+        if(webhook_event.message && webhook_event.message.is_echo == true && webhook_event.message.text){
+          botLog(webhook_event.recipient.id , webhook_event.message.text, "bot", "Message")
+        }
+        // Check if the event is a Message or Postback or Quick Replies.
+        // Pass the event to handlePostBack function if Quick Reply or Postback.
+        // Otherwise, pass the event to handleMessage function.
+        if (sender_psid != process.env.PAGE_ID && webhook_event.message && !webhook_event.message.quick_reply) {
+          botLog(webhook_event.sender.id , webhook_event.message.text, "user", "Message")
+          firstMessages(sender_psid, webhook_event,app);  
+        } else if (sender_psid != process.env.PAGE_ID && (webhook_event.postback || (webhook_event.message && webhook_event.message.quick_reply))) {
+          if(webhook_event.postback && webhook_event.postback.payload && webhook_event.postback.payload !== "GET_STARTED"){
+          botLog(webhook_event.sender.id , webhook_event.postback.title, "user", "Postback")
+          } else{
+            if(webhook_event.message && webhook_event.message.text){
+            botLog(webhook_event.sender.id , `${webhook_event.message.text}, (${webhook_event.message.quick_reply.payload})`, "user", "Quick Reply")
+          }}
+          firstPostbacks(sender_psid, webhook_event,app);
+        }
+      } else {
+        // If it is a standby event track and listen to the coversation by the secondary receivers.
+        webhook_event = entry.standby[0]; 
+        let sender_psid = webhook_event.sender.id;
+        // The case which the message is sent from the page inbox.
+        if (webhook_event.message && sender_psid == process.env.PAGE_ID){
+          if (!webhook_event.message.app_id){
+              inboxLog(webhook_event.recipient.id , webhook_event.message.text, "inbox")
+              check_message = webhook_event.message.text;
+              recipient_id = webhook_event.recipient.id;
+              // It will be easier to send a like to move the user back to the Bot is the representative is using phone.
+              if(!check_message){
+                takeControl(recipient_id);
+              }
+            }
+        }
+        // The case which the user is sending a message to any of the secondary Apps.
+        if (webhook_event.message && webhook_event.message.text && sender_psid != process.env.PAGE_ID){
+          inboxLog(sender_psid , webhook_event.message.text, "user")
+          check_message = webhook_event.message.text;
+          recipient_id = webhook_event.recipient.id;
+          // If no customer service available, the user can send a text to go back to the main Bot.
+          check_message = check_message.toLowerCase();
+          if(check_message.includes("#back to bot") || (check_message.includes("#")) && check_message.includes("back")){
+            inboxLog(sender_psid , check_message, "user")
+            takeControl(sender_psid);
+          }
+        }}
+      });
+    // Returns a '200 OK' response to all requests
+    res.status(200).send('EVENT_RECEIVED');
+    } else {
+      // Returns a '404 Not Found' if event is not from a page subscription
+      res.sendStatus(404);
+    }
+  });
   
-//   // Adds support for GET requests to our webhook
-//   app.get('/webhook', (req, res) => {    
-//     // Parse the query params
-//     let mode = req.query['hub.mode'];
-//     let token = req.query['hub.verify_token'];
-//     let challenge = req.query['hub.challenge'];      
-//     // Checks if a token and mode is in the query string of the request
-//     if (mode && token) {
-//       // Checks the mode and token sent is correct
-//       if (mode === 'subscribe' && token === process.env.VERIFY_TOKEN) {   
-//         // Responds with the challenge token from the request
-//         console.log('WEBHOOK_VERIFIED');
-//         res.status(200).send(challenge);  
-//       } else {
-//       // Responds with '403 Forbidden' if verify tokens do not match
-//       res.sendStatus(403);      
-//       }
-//     }
-//   });
-
+  // Adds support for GET requests to our webhook
+  app.get('/webhook', (req, res) => {    
+    // Parse the query params
+    let mode = req.query['hub.mode'];
+    let token = req.query['hub.verify_token'];
+    let challenge = req.query['hub.challenge'];      
+    // Checks if a token and mode is in the query string of the request
+    if (mode && token) {
+      // Checks the mode and token sent is correct
+      if (mode === 'subscribe' && token === process.env.VERIFY_TOKEN) {   
+        // Responds with the challenge token from the request
+        console.log('WEBHOOK_VERIFIED');
+        res.status(200).send(challenge);  
+      } else {
+      // Responds with '403 Forbidden' if verify tokens do not match
+      res.sendStatus(403);      
+      }
+    }
+  });
+  function sleep(ms) {
+    return new Promise((resolve) => {
+      setTimeout(resolve, ms);
+    });
+  }
 
   // listen for webhook events //
   app.listen(process.env.PORT || 3370, () => console.log('webhook is listening'));

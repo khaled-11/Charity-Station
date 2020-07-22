@@ -1,0 +1,144 @@
+<%- include("header") -%>
+<!--Page used for Sandbox Login-->
+<title>Charity Station | Login With Amazon (Sandbox)</title>
+<center>
+<br>
+<br>
+<h2 id="p1">Please enable popup for this website!</h2>
+<h2 id="p2"></h2>
+<div id="AmazonLoginButton"></div>
+<br>
+<div class="logout">
+<input type="button" value="Not Logged In" id="button" style="display:full"></button>
+</div>
+<br>
+<br>
+<h2 id="p3" style="display:<%=dis%>"></h2>
+<h2 id="p4"><%=m%></h2>
+<br>
+<div class="login">
+<form action="" id = "log" method="POST" style="display:<%=view%>">
+<input id = "log_name" type="text" name="name" style="display:none">
+<input id = "log_email"  name="email" style="display:none">
+<input type="submit" value="Login">
+</form>
+</div>
+<br>
+<br>
+</div>
+</center>
+
+<script type='text/javascript'>
+// get access token
+function getURLParameter(name, source) {
+    return decodeURIComponent((new RegExp('[?|&amp;|#]' + name + '=' +
+    '([^&;]+?)(&|#|;|$)').exec(source) || [, ""])[1].replace(/\+/g, '%20')) || null;
+}
+
+var accessToken = getURLParameter("access_token", location.hash);
+if (typeof accessToken === 'string' && accessToken.match(/^Atza/)) {
+    document.cookie = "amazon_Login_accessToken=" + accessToken + ";path=/";
+}
+
+window.onAmazonLoginReady = function() {
+    amazon.Login.setClientId("amzn1.application-oa2-client.50aada1f57a84397976824107c59f948");
+};
+
+window.onAmazonPaymentsReady = function() {
+    showLoginButton();
+    verifyLoggedIn();  
+    };
+
+</script>
+
+<script type='text/javascript'>
+function showLoginButton() {
+        var authRequest;
+        OffAmazonPayments.Button("AmazonLoginButton", "A3QZK89237OSS2", {
+          type:  "LwA",
+          color: "DarkGray",
+          size:  "medium",
+
+          authorization: function() {
+            loginOptions = {scope: "profile postal_code", popup: true};
+            authRequest = amazon.Login.authorize (loginOptions,function(response) {
+    // this code is executed ASYNCHRONOUSLY
+    if ( response.error ) {
+        window.alert(response.error);
+    } 
+    else {
+        s = "";
+        s = response.expires_in/60;
+        document.getElementById("p2").innerHTML = "Your Session expires in about: " + s.toFixed(1) + " Mins";
+        document.getElementById("AmazonLoginButton").style.display = 'none';
+        document.getElementById("button").value = "Amazon Logout";
+        document.getElementById('button').onclick = function() {
+        amazon.Login.logout();
+        document.cookie = "amazon_Login_accessToken=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+        window.location.href = '/';
+    }
+        amazon.Login.retrieveProfile(function (response) {
+        document.getElementById("p1").innerHTML = response.profile.Name + ", you are now logged in with your Amazon Account!";
+        document.getElementById("log_email").value = response.profile.PrimaryEmail;
+        document.getElementById("log_name").value = response.profile.Name;
+        var test =[]
+        <%var u = 0;%>
+        <% for (const email of users) { %>
+            test[test.length] = "<%=users[u].email.S%>"
+            <%++u%>
+            <% }; %>
+            if (test.includes(`${response.profile.PrimaryEmail}`)){
+            document.getElementById("p3").innerHTML = "You have an account with Charity Station.<br>You are not logged in.";
+        } else{
+            document.getElementById("log").style.display = 'none';
+        }
+    });}
+});}
+});}
+
+function verifyLoggedIn() {
+    var options = {
+        scope: "profile postal_code",
+        popup: true
+    };
+// check if we are logged in
+authRequest = amazon.Login.authorize(options, function(response) {
+    // this code is executed ASYNCHRONOUSLY
+    if ( response.error ) {
+        window.alert(response.error);
+    } 
+    else {
+        s = "";
+        s = response.expires_in/60;
+        document.getElementById("p2").innerHTML = "Your Session expires in about: " + s.toFixed(1) + " Mins";
+        document.getElementById("AmazonLoginButton").style.display = 'none';
+        document.getElementById("button").value = "Amazon Logout";
+        document.getElementById('button').onclick = function() {
+        amazon.Login.logout();
+        document.cookie = "amazon_Login_accessToken=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+        window.location.href = '/';
+    }
+        amazon.Login.retrieveProfile(function (response) {
+        document.getElementById("p1").innerHTML = response.profile.Name + ", you are now logged in with your Amazon Account!";
+        document.getElementById("log_email").value = response.profile.PrimaryEmail;
+        document.getElementById("log_name").value = response.profile.Name;
+        var test =[]
+        <%var u = 0;%>
+        <% for (const email of users) { %>
+            test[test.length] = "<%=users[u].email.S%>"
+            <%++u%>
+            <% }; %>
+            if (test.includes(`${response.profile.PrimaryEmail}`)){
+            document.getElementById("p3").innerHTML = "You have an account with Charity Station.<br>You are not logged in.";
+        } else{
+            document.getElementById("log").style.display = 'none';
+        }
+    });}
+});}
+
+</script>
+         
+<script type="text/javascript" 
+src="https://static-na.payments-amazon.com/OffAmazonPayments/us/sandbox/js/Widgets.js" async></script>
+
+<%- include("footer") -%>

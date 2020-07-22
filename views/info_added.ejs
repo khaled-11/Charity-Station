@@ -1,0 +1,38 @@
+<!--Page used to confirm Messenger sync with Amazon Account-->
+<%- include("header") -%>
+<br>
+<br>
+<title>Charity Station | Information Added</title>
+<center>
+<h1>Thank you for adding these information.<br>If you are using IOS Messenger, this page will be closed now.<br>Otherwise, please close this page to continue.</h1>
+</center>
+
+<script type='text/javascript'>
+
+
+    (function (d, s, id) {
+       var js, fjs = d.getElementsByTagName(s)[0];
+       if (d.getElementById(id)) { return; }
+       js = d.createElement(s); js.id = id;
+       js.src = "//connect.facebook.net/en_US/messenger.Extensions.js";
+       fjs.parentNode.insertBefore(js, fjs);
+   }(document, 'script', 'Messenger'));
+   
+   window.extAsyncInit = function () {
+
+
+
+         sleep(2000).then(() => {   
+
+     MessengerExtensions.requestCloseBrowser(function success() {
+        }, function error(err, message) {
+        }); 
+    });
+}
+
+const sleep = (milliseconds) => {
+   return new Promise(resolve => setTimeout(resolve, milliseconds))
+}
+</script>
+
+<%- include("footer") -%>

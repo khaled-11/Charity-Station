@@ -1,0 +1,23 @@
+<center>
+
+    <title>Charity Station | Redirect Page</title>
+    <h1>You will be redirected soon!</h1>
+
+
+</center>
+
+<script>
+
+const sleep = (milliseconds) => {
+   return new Promise(resolve => setTimeout(resolve, milliseconds))
+}
+
+             sleep(1000).then(() => {   
+
+// Simulate a mouse click:
+// Simulate an HTTP redirect:
+window.location.replace(`<%=link%>`);
+
+             });
+
+</script>

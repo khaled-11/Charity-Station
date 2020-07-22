@@ -1,0 +1,148 @@
+<!--Page used for Messenger Desktop users login-->
+<%- include("header") -%>
+<br>
+<br>
+<title>Charity Station | Amazon Login</title>
+<center>
+<h2 id="p1">Please enable popup for this website!</h2>
+<h2 id="p2"></h2>
+<div id="AmazonLoginButton"></div>
+
+<h3 id="p3"><%=p%></h3> 
+<div id="register"></div>
+<form action="" class="register-form" method="POST" style="display:<%=t%>">
+        <input id = "form_name" type="text" name="name" style="display:none">
+        <input id = "form_postal" type="text" name="postalCode" style="display:none">
+        <input id = "form_email" type="email" name="email" style="display:none">
+        <input id = "fb_id" type="fb_id" name="fb_id" style="display:none" value=<%=r_s%>>
+        <input type="submit" value="Link Amazon Account">
+    </form>
+    <br>
+    <br>
+<button type="button" id="button" style="display:full">Not Logged In</button>
+</div>
+</center>
+<center>
+    <br>
+    <br>
+    <h1><%=msg%></h1>
+    <div class="login">
+        <br>
+        <form action="lg_desk" id = "log" method="POST" style="display:<%=view%>">
+        <input id = "log_name" type="text" name="name" style="display:none">
+        <input id = "log_email"  name="email" style="display:none">
+        <input type="submit" value="Login">
+        </form>
+    </div>
+</center>
+
+
+<script type='text/javascript'>
+// get access token
+function getURLParameter(name, source) {
+    return decodeURIComponent((new RegExp('[?|&amp;|#]' + name + '=' +
+    '([^&;]+?)(&|#|;|$)').exec(source) || [, ""])[1].replace(/\+/g, '%20')) || null;
+}
+
+var accessToken = getURLParameter("access_token", location.hash);
+if (typeof accessToken === 'string' && accessToken.match(/^Atza/)) {
+    document.cookie = "amazon_Login_accessToken=" + accessToken + ";path=/";
+}
+
+window.onAmazonLoginReady = function() {
+    amazon.Login.setClientId("amzn1.application-oa2-client.50aada1f57a84397976824107c59f948");
+
+};
+
+window.onAmazonPaymentsReady = function() {
+    showLoginButton();
+    verifyLoggedIn();  
+    showAddressBookWidget();
+    };
+
+</script>
+
+<script type='text/javascript'>
+function showLoginButton() {
+        var authRequest;
+        OffAmazonPayments.Button("AmazonLoginButton", "A3QZK89237OSS2", {
+          type:  "LwA",
+          color: "DarkGray",
+          size:  "medium",
+
+          authorization: function() {
+            loginOptions = {scope: "profile postal_code", popup: true};
+            authRequest = amazon.Login.authorize (loginOptions,function(response) {
+    // this code is executed ASYNCHRONOUSLY
+    if ( response.error ) {
+        window.alert(response.error);
+    } 
+    else {
+        s = "";
+        s = response.expires_in.toString();
+        document.getElementById("button").innerHTML = "Amazon Logout";
+        document.getElementById('button').onclick = function() {
+        amazon.Login.logout();
+        document.cookie = "amazon_Login_accessToken=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+        window.location.href = '/logout';
+    }
+        amazon.Login.retrieveProfile(function (response) {
+        document.getElementById("p1").innerHTML = response.profile.Name + ", you are now logged in!";
+        document.getElementById("form_postal").value = response.profile.PostalCode;
+        document.getElementById("form_email").value = response.profile.PrimaryEmail;
+        document.getElementById("form_name").value = response.profile.Name;
+        document.getElementById("log_email").value = response.profile.PrimaryEmail;
+        document.getElementById("log_name").value = response.profile.Name;    
+    }
+    );
+    }
+    }       
+    );
+    }
+    });
+}
+function verifyLoggedIn() {
+    var options = {
+        scope: "profile postal_code",
+        popup: true
+    };
+// check if we are logged in
+authRequest = amazon.Login.authorize(options, function(response) {
+    // this code is executed ASYNCHRONOUSLY
+    if ( response.error ) {
+        window.alert(response.error);
+    } 
+    else {
+        s = "";
+        s = response.expires_in.toString();
+        document.getElementById("p2").innerHTML = "Your Session expires in about: " + s.substring(0,2) + " Mins";
+
+        document.getElementById("AmazonLoginButton").style.display = 'none';s
+        document.getElementById("button").innerHTML = "Amazon Logout";
+        document.getElementById('button').onclick = function() {
+        amazon.Login.logout();
+        document.cookie = "amazon_Login_accessToken=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+        window.location.href = '/logout';
+    }
+        amazon.Login.retrieveProfile(function (response) {
+        document.getElementById("p1").innerHTML = response.profile.Name + ", you are now logged in!";
+        document.getElementById("form_postal").value = response.profile.PostalCode;
+        document.getElementById("form_email").value = response.profile.PrimaryEmail;
+        document.getElementById("form_name").value = response.profile.Name;
+        document.getElementById("log_email").value = response.profile.PrimaryEmail;
+        document.getElementById("log_name").value = response.profile.Name;    
+    }
+    );
+}
+});
+}
+
+ 
+  </script>
+         
+  <script type="text/javascript" 
+    src="https://static-na.payments-amazon.com/OffAmazonPayments/us/js/Widgets.js" 
+     async></script>
+
+
+     <%- include("footer") -%>
