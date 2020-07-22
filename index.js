@@ -76,7 +76,11 @@ app.set("view engine", "ejs");
 
 ///// Production Amazon Pay page with Custom Donation Widget /////
 app.get(`/donate`, async function(request, response) {
-  if(request.headers.referer){
+  if(!request.query.s){
+    s = "XXX";
+  } else{
+    s = request.query.s
+  }
     nm = "";
     for ( i = 0 ; i < request.query.name.length ; ++i){
       if(request.query.name[i] != ' ' && request.query.name[i] != `'`){
@@ -89,15 +93,17 @@ app.get(`/donate`, async function(request, response) {
         nm +="%20";
       }
     }
-    response.render("donate",{name:nm,s_id:request.query.s});
-  } else{
-    response.render("donate",{name:nm,s_id: `XXX`});
-  }
+    response.render("donate",{name:nm,s_id:s});
+
 });
 
 ///// Amazon SandBox Pay page with Custom Donation Widget /////
 app.get(`/sandbox`, async function(request, response) {
-  if(request.headers.referer){
+  if(!request.query.s){
+    s = "XXX";
+  } else{
+    s = request.query.s
+  }
     nm = "";
     for ( i = 0 ; i < request.query.name.length ; ++i){
       if(request.query.name[i] != ' ' && request.query.name[i] != `'`){
@@ -110,10 +116,8 @@ app.get(`/sandbox`, async function(request, response) {
         nm +="%20";
       }
     }
-    response.render("sand_box",{name:nm,s_id:request.query.s});
-  } else{
-    response.render("sand_box",{name:nm,s_id: `XXX`});
-  }
+    response.render("sand_box",{name:nm,s_id:s});
+
 
 });
 
