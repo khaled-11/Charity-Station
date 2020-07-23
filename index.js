@@ -76,10 +76,10 @@ app.set("view engine", "ejs");
 
 ///// Production Amazon Pay page with Custom Donation Widget /////
 app.get(`/donate`, async function(request, response) {
-  if(!request.query.s){
-    s = "XXX";
+  if(request.query.s){
+    s = request.query.s;
   } else{
-    s = request.query.s
+    s = "3202616389819984";
   }
     nm = "";
     for ( i = 0 ; i < request.query.name.length ; ++i){
@@ -99,10 +99,10 @@ app.get(`/donate`, async function(request, response) {
 
 ///// Amazon SandBox Pay page with Custom Donation Widget /////
 app.get(`/sandbox`, async function(request, response) {
-  if(!request.query.s){
-    s = "XXX";
+  if(request.query.s){
+    s = request.query.s;
   } else{
-    s = request.query.s
+    s = "3202616389819984";
   }
     nm = "";
     for ( i = 0 ; i < request.query.name.length ; ++i){
@@ -117,8 +117,6 @@ app.get(`/sandbox`, async function(request, response) {
       }
     }
     response.render("sand_box",{name:nm,s_id:s});
-
-
 });
 
 ///// Page to Display All Current Events. This page is public. /////
@@ -427,9 +425,7 @@ app.get(`/success`, async function(request, response) {
   }
   // This Messenger Receipt Template will be sent Once.
   // If the user refreshed the page, the cookie will be deleted.
-  if(!sn.includes("XXX")){
-
-    check = await updateCheck(sn);  
+  check = await updateCheck(sn);  
   msg = {  
     "attachment":{
       "type":"template",
@@ -471,7 +467,7 @@ app.get(`/success`, async function(request, response) {
     }
     action = null;
     callSendAPI(sn, msg, action, "first")
-  }  
+    
   s = "";
     // Loop to read the Messenger PSID from the cookie
     for(i = 0 ; i < ck.length ; ++i){
