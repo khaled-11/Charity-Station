@@ -36,7 +36,7 @@
     "express-session": "^1.17.1",
     "md5": "^2.2.1",
     "node-geocoder": "^3.27.0",
-    "nodemailer": "^6.4.10",
+    "nodemailer": "^6.4.16",
     "path": "^0.12.7",
     "request": "latest",
     "request-promise": "latest"
